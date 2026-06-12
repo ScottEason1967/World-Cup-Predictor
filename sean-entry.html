@@ -1,0 +1,113 @@
+<!DOCTYPE html><html lang="en-GB"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quick entry (organiser)</title>
+<style>
+:root{--bg:#0b1220;--panel:#121d31;--panel2:#0e1726;--ink:#f4f1e8;--muted:#9fb0c6;--accent:#ff4d3d;--line:rgba(255,255,255,.1)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,sans-serif;font-size:16px}
+.wrap{max-width:760px;margin:0 auto;padding:18px 16px 90px}
+h1{font-size:22px;margin:.2em 0}.note{color:var(--muted);font-size:14px}
+.bar{position:sticky;top:0;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;z-index:5;margin:12px 0}
+input{font:inherit;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+input[type=number]{width:46px;text-align:center;font-weight:700}
+#name{width:140px;font-weight:700}#pin{width:90px;text-align:center;letter-spacing:.2em}
+.group{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin:12px 0;overflow:hidden}
+.gh{padding:10px 14px;background:var(--panel2);font-weight:800;border-bottom:1px solid var(--line)}
+.m{display:grid;grid-template-columns:34px 1fr auto 1fr;gap:8px;align-items:center;padding:9px 14px;border-bottom:1px solid var(--line)}
+.m:last-child{border:0}.mno{font-size:11px;color:var(--muted)}
+.side{display:flex;align-items:center;gap:7px;min-width:0}.side.a{flex-direction:row-reverse;text-align:right}
+.flag{width:26px;height:19px;object-fit:cover;border-radius:3px;outline:1px solid rgba(255,255,255,.15)}
+.tn{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vs{display:flex;gap:5px;align-items:center}.dash{color:var(--muted)}
+button{font:inherit;font-weight:800;background:var(--accent);color:#0b1220;border:0;border-radius:10px;padding:12px 20px;cursor:pointer}
+.st{margin-top:12px;padding:12px;border-radius:10px;font-weight:600;display:none}
+.st.ok{display:block;background:rgba(54,194,117,.15);border:1px solid rgba(54,194,117,.5);color:#bff3d6}
+.st.err{display:block;background:rgba(255,77,61,.15);border:1px solid rgba(255,77,61,.5);color:#ffd3cd}
+.st.warn{display:block;background:rgba(244,185,66,.15);border:1px solid rgba(244,185,66,.5);color:#ffe6ad}
+</style></head><body><div class="wrap">
+<h1>Quick entry &mdash; organiser only</h1>
+<p class="note">Writes straight to the sheet, ignoring the lock. Default name is Sean. Fill all 72, type the organiser PIN, Submit. Keep this file on your computer &mdash; do not push it to GitHub.</p>
+<div class="bar">
+  <label>Name <input id="name" value="Sean"></label>
+  <label>Organiser PIN <input id="pin" type="password" inputmode="numeric" maxlength="4" placeholder="PIN"></label>
+  <span id="prog" class="note">0 of 72</span>
+  <button id="go">Submit</button>
+</div>
+<div id="fix"></div>
+<div class="bar"><button id="go2">Submit</button><span id="prog2" class="note">0 of 72</span></div>
+<div class="st" id="st"></div>
+</div>
+<script>
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbyr6wUiySfXwM9mvkMGGqmcDqZe5iu3nZvO7Wcu9iVfCYi0w8pmq0YMXdd2w1K58ian_g/exec";
+const TEAMS = {
+  MEX:["Mexico","🇲🇽"], RSA:["South Africa","🇿🇦"], KOR:["Korea Republic","🇰🇷"], CZE:["Czechia","🇨🇿"],
+  CAN:["Canada","🇨🇦"], BIH:["Bosnia & Herz.","🇧🇦"], QAT:["Qatar","🇶🇦"], SUI:["Switzerland","🇨🇭"],
+  BRA:["Brazil","🇧🇷"], MAR:["Morocco","🇲🇦"], HAI:["Haiti","🇭🇹"], SCO:["Scotland","🏴󠁧󠁢󠁳󠁣󠁴󠁿"],
+  USA:["USA","🇺🇸"], PAR:["Paraguay","🇵🇾"], AUS:["Australia","🇦🇺"], TUR:["Türkiye","🇹🇷"],
+  GER:["Germany","🇩🇪"], CUW:["Curaçao","🇨🇼"], CIV:["Côte d'Ivoire","🇨🇮"], ECU:["Ecuador","🇪🇨"],
+  NED:["Netherlands","🇳🇱"], JPN:["Japan","🇯🇵"], SWE:["Sweden","🇸🇪"], TUN:["Tunisia","🇹🇳"],
+  BEL:["Belgium","🇧🇪"], EGY:["Egypt","🇪🇬"], IRN:["IR Iran","🇮🇷"], NZL:["New Zealand","🇳🇿"],
+  ESP:["Spain","🇪🇸"], CPV:["Cabo Verde","🇨🇻"], KSA:["Saudi Arabia","🇸🇦"], URU:["Uruguay","🇺🇾"],
+  FRA:["France","🇫🇷"], SEN:["Senegal","🇸🇳"], IRQ:["Iraq","🇮🇶"], NOR:["Norway","🇳🇴"],
+  ARG:["Argentina","🇦🇷"], ALG:["Algeria","🇩🇿"], AUT:["Austria","🇦🇹"], JOR:["Jordan","🇯🇴"],
+  POR:["Portugal","🇵🇹"], COD:["Congo DR","🇨🇩"], UZB:["Uzbekistan","🇺🇿"], COL:["Colombia","🇨🇴"],
+  ENG:["England","🏴󠁧󠁢󠁥󠁮󠁧󠁿"], CRO:["Croatia","🇭🇷"], GHA:["Ghana","🇬🇭"], PAN:["Panama","🇵🇦"]
+};
+const FLAG = {
+  MEX:"mx",RSA:"za",KOR:"kr",CZE:"cz",CAN:"ca",BIH:"ba",QAT:"qa",SUI:"ch",
+  BRA:"br",MAR:"ma",HAI:"ht",SCO:"gb-sct",USA:"us",PAR:"py",AUS:"au",TUR:"tr",
+  GER:"de",CUW:"cw",CIV:"ci",ECU:"ec",NED:"nl",JPN:"jp",SWE:"se",TUN:"tn",
+  BEL:"be",EGY:"eg",IRN:"ir",NZL:"nz",ESP:"es",CPV:"cv",KSA:"sa",URU:"uy",
+  FRA:"fr",SEN:"sn",IRQ:"iq",NOR:"no",ARG:"ar",ALG:"dz",AUT:"at",JOR:"jo",
+  POR:"pt",COD:"cd",UZB:"uz",COL:"co",ENG:"gb-eng",CRO:"hr",GHA:"gh",PAN:"pa"
+};
+const GROUP_META = {
+  A:{teams:["MEX","RSA","KOR","CZE"], c:"#ff5a5f"},
+  B:{teams:["CAN","BIH","QAT","SUI"], c:"#ff9f1c"},
+  C:{teams:["BRA","MAR","HAI","SCO"], c:"#f4b942"},
+  D:{teams:["USA","PAR","AUS","TUR"], c:"#9bcf3c"},
+  E:{teams:["GER","CUW","CIV","ECU"], c:"#36c275"},
+  F:{teams:["NED","JPN","SWE","TUN"], c:"#2ec4b6"},
+  G:{teams:["BEL","EGY","IRN","NZL"], c:"#4cc9f0"},
+  H:{teams:["ESP","CPV","KSA","URU"], c:"#5b8def"},
+  I:{teams:["FRA","SEN","IRQ","NOR"], c:"#8a7cff"},
+  J:{teams:["ARG","ALG","AUT","JOR"], c:"#c77dff"},
+  K:{teams:["POR","COD","UZB","COL"], c:"#ff6fb5"},
+  L:{teams:["ENG","CRO","GHA","PAN"], c:"#ff85a1"}
+};
+const FIXTURES = [
+  [1,"A","MEX","RSA","15:00",1],[2,"A","KOR","CZE","22:00",1],[25,"A","CZE","RSA","12:00",2],
+  [28,"A","MEX","KOR","21:00",2],[53,"A","CZE","MEX","21:00",3],[54,"A","RSA","KOR","21:00",3],
+  [3,"B","CAN","BIH","15:00",1],[8,"B","QAT","SUI","15:00",1],[26,"B","SUI","BIH","15:00",2],
+  [27,"B","CAN","QAT","18:00",2],[51,"B","SUI","CAN","15:00",3],[52,"B","BIH","QAT","15:00",3],
+  [5,"C","HAI","SCO","21:00",1],[7,"C","BRA","MAR","18:00",1],[29,"C","BRA","HAI","20:30",2],
+  [30,"C","SCO","MAR","18:00",2],[49,"C","SCO","BRA","18:00",3],[50,"C","MAR","HAI","18:00",3],
+  [4,"D","USA","PAR","21:00",1],[6,"D","AUS","TUR","00:00",1],[31,"D","TUR","PAR","23:00",2],
+  [32,"D","USA","AUS","15:00",2],[59,"D","TUR","USA","22:00",3],[60,"D","PAR","AUS","22:00",3],
+  [9,"E","CIV","ECU","19:00",1],[10,"E","GER","CUW","13:00",1],[33,"E","GER","CIV","16:00",2],
+  [34,"E","ECU","CUW","20:00",2],[55,"E","CUW","CIV","16:00",3],[56,"E","ECU","GER","16:00",3],
+  [11,"F","NED","JPN","16:00",1],[12,"F","SWE","TUN","22:00",1],[35,"F","NED","SWE","13:00",2],
+  [36,"F","TUN","JPN","00:00",2],[57,"F","JPN","SWE","19:00",3],[58,"F","TUN","NED","19:00",3],
+  [15,"G","IRN","NZL","21:00",1],[16,"G","BEL","EGY","15:00",1],[39,"G","BEL","IRN","15:00",2],
+  [40,"G","NZL","EGY","21:00",2],[63,"G","EGY","IRN","23:00",3],[64,"G","NZL","BEL","23:00",3],
+  [13,"H","KSA","URU","18:00",1],[14,"H","ESP","CPV","12:00",1],[37,"H","URU","CPV","18:00",2],
+  [38,"H","ESP","KSA","12:00",2],[65,"H","CPV","KSA","20:00",3],[66,"H","URU","ESP","20:00",3],
+  [17,"I","FRA","SEN","15:00",1],[18,"I","IRQ","NOR","18:00",1],[41,"I","NOR","SEN","20:00",2],
+  [42,"I","FRA","IRQ","17:00",2],[61,"I","NOR","FRA","15:00",3],[62,"I","SEN","IRQ","15:00",3],
+  [19,"J","ARG","ALG","21:00",1],[20,"J","AUT","JOR","00:00",1],[43,"J","ARG","AUT","13:00",2],
+  [44,"J","JOR","ALG","23:00",2],[69,"J","ALG","AUT","22:00",3],[70,"J","JOR","ARG","22:00",3],
+  [23,"K","POR","COD","13:00",1],[24,"K","UZB","COL","22:00",1],[47,"K","POR","UZB","13:00",2],
+  [48,"K","COL","COD","22:00",2],[71,"K","COL","POR","19:30",3],[72,"K","COD","UZB","19:30",3],
+  [21,"L","GHA","PAN","19:00",1],[22,"L","ENG","CRO","16:00",1],[45,"L","ENG","GHA","16:00",2],
+  [46,"L","PAN","CRO","19:00",2],[67,"L","PAN","ENG","17:00",3],[68,"L","CRO","GHA","17:00",3]
+];
+const $=s=>document.querySelector(s);
+const byG={};FIXTURES.forEach(f=>{(byG[f[1]]=byG[f[1]]||[]).push(f)});
+function side(code,a){const n=TEAMS[code][0],iso=FLAG[code];return `<div class="side ${a?"a":""}"><img class="flag" src="images/flags/${iso}.svg" alt=""><span class="tn">${n}</span></div>`}
+function build(){const h=$("#fix");Object.keys(GROUP_META).forEach(g=>{const w=document.createElement("div");w.className="group";w.innerHTML=`<div class="gh">Group ${g}</div>`;byG[g].sort((a,b)=>a[5]-b[5]||a[0]-b[0]).forEach(f=>{const[no,,hh,aa]=f;const r=document.createElement("div");r.className="m";r.innerHTML=`<div class="mno">#${no}</div>${side(hh,0)}<div class="vs"><input type="number" min="0" max="99" data-m="${no}" data-s="h"><span class="dash">&ndash;</span><input type="number" min="0" max="99" data-m="${no}" data-s="a"></div>${side(aa,1)}`;w.appendChild(r)});h.appendChild(w)})}
+function collect(){const o={};FIXTURES.forEach(f=>{const h=$(`input[data-m="${f[0]}"][data-s="h"]`).value,a=$(`input[data-m="${f[0]}"][data-s="a"]`).value;if(h!==""&&a!=="")o[f[0]]=[+h,+a]});return o}
+function prog(){const n=Object.keys(collect()).length;$("#prog").textContent=$("#prog2").textContent=n+" of 72"}
+function jsonp(p){return new Promise((res,rej)=>{const cb="cb_"+Math.random().toString(36).slice(2);const sc=document.createElement("script");const q=new URLSearchParams(Object.assign({},p,{callback:cb,t:Date.now()}));let done=false;window[cb]=d=>{done=true;res(d);sc.remove();delete window[cb]};sc.onerror=()=>{if(!done){rej(new Error("net"));sc.remove()}};sc.src=SCRIPT_URL+"?"+q;document.body.appendChild(sc);setTimeout(()=>{if(!done){rej(new Error("timeout"))}},15000)})}
+function st(k,m){const e=$("#st");e.className="st "+k;e.textContent=m}
+async function go(){const name=($("#name").value||"").trim()||"Sean";const pin=($("#pin").value||"").trim();const preds=collect();if(Object.keys(preds).length!==72)return st("err","Fill in all 72 games first — "+Object.keys(preds).length+" done.");if(!/^\d{4}$/.test(pin))return st("err","Enter the organiser PIN.");st("warn","Saving "+name+"…");try{const r=await jsonp({action:"submit",stage:"GROUP",name,type:"prediction",data:JSON.stringify(preds),adminPin:pin});if(r&&r.ok)st("ok",name+"’s predictions are saved to the sheet. Done.");else st("err","Failed: "+((r&&r.error)||"unknown")+(r&&r.error==="bad_pin"?" (organiser PIN wrong)":""))}catch(e){st("err","Couldn’t reach the sheet. Check your connection and try again.")}}
+build();document.addEventListener("input",prog);$("#go").onclick=go;$("#go2").onclick=go;prog();
+</script></body></html>
