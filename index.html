@@ -700,6 +700,7 @@ function initTabs(){
       document.querySelectorAll(".view").forEach(v=>v.classList.remove("on"));
       b.classList.add("on"); $("#"+b.dataset.tab).classList.add("on");
       if(b.dataset.tab==="leaderboard") renderLeaderboard();
+      if(b.dataset.tab==="organiser") loadResults();   // auto-show recorded results
     });
   });
 }
