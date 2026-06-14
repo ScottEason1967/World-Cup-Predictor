@@ -56,7 +56,7 @@ footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);color:v
 <header>
   <p class="kicker">The Eason Family Sweepstake</p>
   <h1>Today's <span class="yr">Picks</span></h1>
-  <p class="sub">Everyone's predictions for today's fixtures, all on one page. The day runs from the afternoon games through any early-hours kick-offs that belong to the same night, and rolls on to the next day once those have been played.</p>
+  <p class="sub">Everyone's predictions for the fixtures still to come, all on one page. You'll see today's remaining games plus any that kick off in the early hours of tomorrow morning. Each game drops off once it kicks off, so this always shows what's next.</p>
 </header>
 <nav class="nav">
   <a href="index.html">Predict</a>
@@ -118,21 +118,20 @@ async function load(){
 
 function render(){
   const now=Date.now();
-  let key=slateKey(now);
-  let nos=Object.keys(KO).map(Number).filter(n=>slateKey(Date.parse(KO[n]))===key);
-  // Nothing on today's slate (rest day / before or after the group stage) -> show the next day that has games.
-  let future=false;
-  if(!nos.length){
-    const ahead=Object.keys(KO).map(Number).filter(n=>Date.parse(KO[n])>now).sort((a,b)=>Date.parse(KO[a])-Date.parse(KO[b]));
-    if(ahead.length){key=slateKey(Date.parse(KO[ahead[0]]));nos=Object.keys(KO).map(Number).filter(n=>slateKey(Date.parse(KO[n]))===key);future=true;}
-  }
-  if(!nos.length){
+  // Forward-looking: anchor on the next match that hasn't kicked off yet, then show that whole
+  // night's slate. As each game kicks off the view moves on, so it always shows what's still to come
+  // (today's remaining games plus any that kick off in the early hours tomorrow).
+  const ahead=Object.keys(KO).map(Number).filter(n=>Date.parse(KO[n])>now).sort((a,b)=>Date.parse(KO[a])-Date.parse(KO[b]));
+  if(!ahead.length){
     $("#dayTitle").textContent="That's the group stage done";
     $("#dayMeta").textContent="";
-    $("#out").innerHTML='<div class="empty">No more group games to show. Hop over to the <a href="index.html#leaderboard" style="color:var(--gold)">leaderboard</a> for the final standings.</div>';
+    $("#dayNote").style.display="none";
+    $("#legend").style.display="none";
+    $("#out").innerHTML='<div class="empty">No more group games to come. Hop over to the <a href="index.html#leaderboard" style="color:var(--gold)">leaderboard</a> for the final standings.</div>';
     return;
   }
-  nos.sort((a,b)=>Date.parse(KO[a])-Date.parse(KO[b]));
+  const key=slateKey(Date.parse(KO[ahead[0]]));
+  const nos=Object.keys(KO).map(Number).filter(n=>slateKey(Date.parse(KO[n]))===key).sort((a,b)=>Date.parse(KO[a])-Date.parse(KO[b]));
 
   const players=Object.keys(PREDS).sort((a,b)=>a.localeCompare(b));
   const spansNext=nos.some(n=>ukDate(Date.parse(KO[n]))!==key);
@@ -143,10 +142,10 @@ function render(){
 
   const note=$("#dayNote");
   let parts=[];
-  if(future) parts.push("No games today — here's the next match day.");
+  if(ukDate(now)!==key) parts.push("Showing the next match day.");
   if(spansNext){
     const lastUk=ukDate(Date.parse(KO[nos[nos.length-1]]));
-    parts.push("Some games kick off in the early hours of "+prettyShort(lastUk)+" UK and stay on this page until they've been played.");
+    parts.push("Includes games kicking off in the early hours of "+prettyShort(lastUk)+" UK.");
   }
   if(parts.length){note.style.display="flex";note.innerHTML='<span class="dotr"></span><span>'+parts.join(" ")+'</span>';}
   else note.style.display="none";
