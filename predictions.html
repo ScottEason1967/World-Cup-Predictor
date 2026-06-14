@@ -40,12 +40,24 @@ select:focus{outline:2px solid var(--accent);outline-offset:1px}
 .empty{padding:50px 18px;text-align:center;color:var(--muted)}
 footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
 @media(max-width:620px){.row{grid-template-columns:28px 1fr auto 1fr;gap:7px;padding:10px 12px}.tn{font-size:12.5px}.out{grid-column:2/5;text-align:left;margin-top:-3px}.pred{font-size:16px}}
+.nav{display:flex;gap:4px;margin:18px 0 4px;background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:5px;flex-wrap:wrap}
+.nav a{flex:1;min-width:84px;text-align:center;text-decoration:none;color:var(--muted);font-family:inherit;font-weight:700;font-size:14px;padding:11px 8px;border-radius:10px;transition:.18s}
+.nav a:hover{color:var(--ink)}
+.nav a.on{background:var(--accent);color:#0b1220}
+@media(max-width:620px){.nav a{font-size:12.5px;padding:10px 4px;min-width:72px}}
 </style></head><body><div class="wrap">
 <header>
   <p class="kicker">The Eason Family Sweepstake</p>
   <h1>Everyone's <span class="yr">Predictions</span></h1>
   <p class="sub">Pick a name to see every scoreline they predicted. Once games are played, you'll see the actual result and the points they scored too.</p>
 </header>
+<nav class="nav">
+  <a href="index.html">Predict</a>
+  <a href="index.html#leaderboard">Leaderboard</a>
+  <a href="index.html#organiser">Results</a>
+  <a href="today.html">Today's picks</a>
+  <a href="predictions.html" class="on">Everyone's picks</a>
+</nav>
 <div class="bar">
   <label for="who">Whose predictions?</label>
   <select id="who"><option value="">— choose a name —</option></select>

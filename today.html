@@ -1,0 +1,189 @@
+<!DOCTYPE html><html lang="en-GB"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World Cup 2026 Predictor — Today's Picks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b1220;--panel:#121d31;--panel2:#0e1726;--ink:#f4f1e8;--muted:#9fb0c6;--accent:#ff4d3d;--gold:#f4b942;--green:#36c275;--line:rgba(255,255,255,.09);--line2:rgba(255,255,255,.16);--shadow:0 18px 40px -20px rgba(0,0,0,.7)}
+*{box-sizing:border-box}html,body{margin:0;padding:0}
+body{background:radial-gradient(1200px 600px at 80% -10%,rgba(255,77,61,.10),transparent 60%),radial-gradient(900px 500px at -10% 10%,rgba(244,185,66,.08),transparent 55%),var(--bg);color:var(--ink);font-family:"Hanken Grotesk",system-ui,sans-serif;font-size:16px;line-height:1.5;min-height:100vh}
+.wrap{max-width:1000px;margin:0 auto;padding:0 18px 80px}
+header{padding:34px 0 18px;border-bottom:1px solid var(--line)}
+.kicker{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);font-weight:800;margin:0 0 8px}
+h1{font-family:"Anton",sans-serif;font-weight:400;line-height:.92;font-size:clamp(34px,7vw,62px);margin:0;text-transform:uppercase}
+h1 .yr{color:var(--accent)}
+.sub{color:var(--muted);margin:12px 0 0;font-size:15px;max-width:62ch}
+.nav{display:flex;gap:4px;margin:18px 0 4px;background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:5px;flex-wrap:wrap}
+.nav a{flex:1;min-width:84px;text-align:center;text-decoration:none;color:var(--muted);font-family:inherit;font-weight:700;font-size:14px;padding:11px 8px;border-radius:10px;transition:.18s}
+.nav a:hover{color:var(--ink)}
+.nav a.on{background:var(--accent);color:#0b1220}
+.daybar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:baseline;margin:22px 2px 8px}
+.daybar h2{font-family:"Anton";font-weight:400;font-size:clamp(22px,4.5vw,32px);margin:0;text-transform:uppercase;letter-spacing:.01em}
+.daybar .meta{color:var(--muted);font-size:13.5px}
+.daynote{color:var(--muted);font-size:13px;margin:0 2px 14px;display:flex;align-items:center;gap:8px}
+.daynote .dotr{width:8px;height:8px;border-radius:50%;background:var(--gold);flex:0 0 auto}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin:2px 2px 16px}
+.dot{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;font-family:"Anton";font-size:12px;color:#0b1220;margin-right:5px}
+.d3{background:var(--green)}.d1{background:var(--gold)}.d0{background:#5a6b82;color:#fff}
+.mcard{background:var(--panel);border:1px solid var(--line);border-radius:16px;margin-bottom:14px;overflow:hidden;box-shadow:var(--shadow)}
+.mtop{display:flex;align-items:center;gap:10px 14px;padding:11px 16px;border-bottom:1px solid var(--line);background:var(--panel2);flex-wrap:wrap}
+.mtime{font-weight:800;font-size:13.5px}
+.mtime .et{color:var(--muted);font-weight:600;font-size:12px;margin-left:6px}
+.mmeta{font-size:12px;color:var(--muted)}
+.tag{margin-left:auto;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:999px}
+.tag.ft{background:rgba(54,194,117,.16);color:#bff3d6}
+.tag.up{background:rgba(244,185,66,.14);color:#ffe6ad}
+.tag.live{background:rgba(255,77,61,.18);color:#ffd3cd}
+.fixline{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;padding:13px 16px}
+.team{display:flex;align-items:center;gap:9px;min-width:0}
+.team.a{flex-direction:row-reverse;text-align:right}
+.flag{width:30px;height:22px;object-fit:cover;border-radius:3px;outline:1px solid rgba(255,255,255,.15);flex:0 0 auto}
+.tn{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.score{font-family:"Anton";font-size:26px;letter-spacing:.03em;text-align:center;white-space:nowrap;min-width:64px}
+.score .v{color:var(--muted);font-size:18px}
+.picks{display:flex;flex-wrap:wrap;gap:8px;padding:2px 16px 15px}
+.picks .none{color:var(--muted);font-size:13px;padding:4px 0}
+.chip{font-size:12.5px;font-weight:700;background:var(--panel2);border:1px solid var(--line2);border-radius:999px;padding:5px 11px;white-space:nowrap;color:var(--ink)}
+.chip .s{font-weight:800;margin-left:6px}
+.chip.miss{color:var(--muted)}
+.chip.b3{background:var(--green);color:#0b1220;border-color:transparent}
+.chip.b1{background:var(--gold);color:#0b1220;border-color:transparent}
+.chip.b0{background:#22304a;color:var(--muted);border-color:transparent}
+.empty{padding:50px 18px;text-align:center;color:var(--muted)}
+footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
+@media(max-width:620px){.tn{font-size:13px}.flag{width:26px;height:19px}.score{font-size:22px;min-width:56px}.nav a{font-size:12.5px;padding:10px 4px;min-width:72px}}
+</style></head><body><div class="wrap">
+<header>
+  <p class="kicker">The Eason Family Sweepstake</p>
+  <h1>Today's <span class="yr">Picks</span></h1>
+  <p class="sub">Everyone's predictions for today's fixtures, all on one page. The day runs from the afternoon games through any early-hours kick-offs that belong to the same night, and rolls on to the next day once those have been played.</p>
+</header>
+<nav class="nav">
+  <a href="index.html">Predict</a>
+  <a href="index.html#leaderboard">Leaderboard</a>
+  <a href="index.html#organiser">Results</a>
+  <a href="today.html" class="on">Today's picks</a>
+  <a href="predictions.html">Everyone's picks</a>
+</nav>
+<div class="daybar"><h2 id="dayTitle">Loading…</h2><span class="meta" id="dayMeta"></span></div>
+<div class="daynote" id="dayNote" style="display:none"></div>
+<div class="legend" id="legend" style="display:none">
+  <span><span class="dot d3">3</span>Exact scoreline</span>
+  <span><span class="dot d1">1</span>Right result</span>
+  <span><span class="dot d0">0</span>Wrong</span>
+</div>
+<div id="out"><div class="empty">Loading today's fixtures…</div></div>
+<footer><p>Read-only view. Pulls the latest predictions and results straight from the sheet each time you open it. Times shown UK, with ET alongside.</p></footer>
+</div>
+<script>
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbyr6wUiySfXwM9mvkMGGqmcDqZe5iu3nZvO7Wcu9iVfCYi0w8pmq0YMXdd2w1K58ian_g/exec";
+const TEAMS={MEX:["Mexico"],RSA:["South Africa"],KOR:["Korea Republic"],CZE:["Czechia"],CAN:["Canada"],BIH:["Bosnia & Herz."],QAT:["Qatar"],SUI:["Switzerland"],BRA:["Brazil"],MAR:["Morocco"],HAI:["Haiti"],SCO:["Scotland"],USA:["USA"],PAR:["Paraguay"],AUS:["Australia"],TUR:["Türkiye"],GER:["Germany"],CUW:["Curaçao"],CIV:["Côte d'Ivoire"],ECU:["Ecuador"],NED:["Netherlands"],JPN:["Japan"],SWE:["Sweden"],TUN:["Tunisia"],BEL:["Belgium"],EGY:["Egypt"],IRN:["IR Iran"],NZL:["New Zealand"],ESP:["Spain"],CPV:["Cabo Verde"],KSA:["Saudi Arabia"],URU:["Uruguay"],FRA:["France"],SEN:["Senegal"],IRQ:["Iraq"],NOR:["Norway"],ARG:["Argentina"],ALG:["Algeria"],AUT:["Austria"],JOR:["Jordan"],POR:["Portugal"],COD:["Congo DR"],UZB:["Uzbekistan"],COL:["Colombia"],ENG:["England"],CRO:["Croatia"],GHA:["Ghana"],PAN:["Panama"]};
+const FLAG={MEX:"mx",RSA:"za",KOR:"kr",CZE:"cz",CAN:"ca",BIH:"ba",QAT:"qa",SUI:"ch",BRA:"br",MAR:"ma",HAI:"ht",SCO:"gb-sct",USA:"us",PAR:"py",AUS:"au",TUR:"tr",GER:"de",CUW:"cw",CIV:"ci",ECU:"ec",NED:"nl",JPN:"jp",SWE:"se",TUN:"tn",BEL:"be",EGY:"eg",IRN:"ir",NZL:"nz",ESP:"es",CPV:"cv",KSA:"sa",URU:"uy",FRA:"fr",SEN:"sn",IRQ:"iq",NOR:"no",ARG:"ar",ALG:"dz",AUT:"at",JOR:"jo",POR:"pt",COD:"cd",UZB:"uz",COL:"co",ENG:"gb-eng",CRO:"hr",GHA:"gh",PAN:"pa"};
+// match no -> [group, home, away]
+const FX={1:["A","MEX","RSA"],2:["A","KOR","CZE"],3:["B","CAN","BIH"],4:["D","USA","PAR"],5:["C","HAI","SCO"],6:["D","AUS","TUR"],7:["C","BRA","MAR"],8:["B","QAT","SUI"],9:["E","CIV","ECU"],10:["E","GER","CUW"],11:["F","NED","JPN"],12:["F","SWE","TUN"],13:["H","KSA","URU"],14:["H","ESP","CPV"],15:["G","IRN","NZL"],16:["G","BEL","EGY"],17:["I","FRA","SEN"],18:["I","IRQ","NOR"],19:["J","ARG","ALG"],20:["J","AUT","JOR"],21:["L","GHA","PAN"],22:["L","ENG","CRO"],23:["K","POR","COD"],24:["K","UZB","COL"],25:["A","CZE","RSA"],26:["B","SUI","BIH"],27:["B","CAN","QAT"],28:["A","MEX","KOR"],29:["C","BRA","HAI"],30:["C","SCO","MAR"],31:["D","TUR","PAR"],32:["D","USA","AUS"],33:["E","GER","CIV"],34:["E","ECU","CUW"],35:["F","NED","SWE"],36:["F","TUN","JPN"],37:["H","URU","CPV"],38:["H","ESP","KSA"],39:["G","BEL","IRN"],40:["G","NZL","EGY"],41:["I","NOR","SEN"],42:["I","FRA","IRQ"],43:["J","ARG","AUT"],44:["J","JOR","ALG"],45:["L","ENG","GHA"],46:["L","PAN","CRO"],47:["K","POR","UZB"],48:["K","COL","COD"],49:["C","SCO","BRA"],50:["C","MAR","HAI"],51:["B","SUI","CAN"],52:["B","BIH","QAT"],53:["A","CZE","MEX"],54:["A","RSA","KOR"],55:["E","CUW","CIV"],56:["E","ECU","GER"],57:["F","JPN","SWE"],58:["F","TUN","NED"],59:["D","TUR","USA"],60:["D","PAR","AUS"],61:["I","NOR","FRA"],62:["I","SEN","IRQ"],63:["G","EGY","IRN"],64:["G","NZL","BEL"],65:["H","CPV","KSA"],66:["H","URU","ESP"],67:["L","PAN","ENG"],68:["L","CRO","GHA"],69:["J","ALG","AUT"],70:["J","JOR","ARG"],71:["K","COL","POR"],72:["K","COD","UZB"]};
+// match no -> kickoff (UTC). Verified against the official FIFA / Al Jazeera schedule.
+const KO={"1":"2026-06-11T19:00:00Z","2":"2026-06-12T02:00:00Z","3":"2026-06-12T19:00:00Z","4":"2026-06-13T01:00:00Z","5":"2026-06-14T01:00:00Z","6":"2026-06-14T04:00:00Z","7":"2026-06-13T22:00:00Z","8":"2026-06-13T19:00:00Z","9":"2026-06-14T23:00:00Z","10":"2026-06-14T17:00:00Z","11":"2026-06-14T20:00:00Z","12":"2026-06-15T02:00:00Z","13":"2026-06-15T22:00:00Z","14":"2026-06-15T16:00:00Z","15":"2026-06-16T01:00:00Z","16":"2026-06-15T19:00:00Z","17":"2026-06-16T19:00:00Z","18":"2026-06-16T22:00:00Z","19":"2026-06-17T01:00:00Z","20":"2026-06-17T04:00:00Z","21":"2026-06-17T23:00:00Z","22":"2026-06-17T20:00:00Z","23":"2026-06-17T17:00:00Z","24":"2026-06-18T02:00:00Z","25":"2026-06-18T16:00:00Z","26":"2026-06-18T19:00:00Z","27":"2026-06-18T22:00:00Z","28":"2026-06-19T01:00:00Z","29":"2026-06-20T00:30:00Z","30":"2026-06-19T22:00:00Z","31":"2026-06-20T03:00:00Z","32":"2026-06-19T19:00:00Z","33":"2026-06-20T20:00:00Z","34":"2026-06-21T00:00:00Z","35":"2026-06-20T17:00:00Z","36":"2026-06-21T04:00:00Z","37":"2026-06-21T22:00:00Z","38":"2026-06-21T16:00:00Z","39":"2026-06-21T19:00:00Z","40":"2026-06-22T01:00:00Z","41":"2026-06-23T00:00:00Z","42":"2026-06-22T21:00:00Z","43":"2026-06-22T17:00:00Z","44":"2026-06-23T03:00:00Z","45":"2026-06-23T20:00:00Z","46":"2026-06-23T23:00:00Z","47":"2026-06-23T17:00:00Z","48":"2026-06-24T02:00:00Z","49":"2026-06-24T22:00:00Z","50":"2026-06-24T22:00:00Z","51":"2026-06-24T19:00:00Z","52":"2026-06-24T19:00:00Z","53":"2026-06-25T01:00:00Z","54":"2026-06-25T01:00:00Z","55":"2026-06-25T20:00:00Z","56":"2026-06-25T20:00:00Z","57":"2026-06-25T23:00:00Z","58":"2026-06-25T23:00:00Z","59":"2026-06-26T02:00:00Z","60":"2026-06-26T02:00:00Z","61":"2026-06-26T19:00:00Z","62":"2026-06-26T19:00:00Z","63":"2026-06-27T03:00:00Z","64":"2026-06-27T03:00:00Z","65":"2026-06-27T00:00:00Z","66":"2026-06-27T00:00:00Z","67":"2026-06-27T21:00:00Z","68":"2026-06-27T21:00:00Z","69":"2026-06-28T02:00:00Z","70":"2026-06-28T02:00:00Z","71":"2026-06-27T23:30:00Z","72":"2026-06-27T23:30:00Z"};
+
+const $=s=>document.querySelector(s);
+const HR=3600000;
+// "football day" key: the night a match belongs to. Boundary 08:00 UK (07:00 UTC):
+// everything from afternoon kick-offs through ~5am-UK games is one day.
+function slateKey(ms){return new Date(ms-7*HR).toISOString().slice(0,10);}
+function ukDate(ms){return new Date(ms+1*HR).toISOString().slice(0,10);}       // BST = UTC+1
+function ukHM(ms){return new Date(ms+1*HR).toISOString().slice(11,16);}
+function etHM(ms){return new Date(ms-4*HR).toISOString().slice(11,16);}          // EDT = UTC-4
+function prettyDay(key){
+  const d=new Date(key+"T12:00:00Z");
+  return d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
+}
+function prettyShort(key){
+  const d=new Date(key+"T12:00:00Z");
+  return d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
+}
+function scoreOne(p,r){if(!p||!r)return null;if(p[0]===r[0]&&p[1]===r[1])return 3;const s=(x,y)=>(x>y)-(x<y);return s(p[0],p[1])===s(r[0],r[1])?1:0;}
+function jsonp(p){return new Promise((res,rej)=>{const cb="cb_"+Math.random().toString(36).slice(2);const s=document.createElement("script");const q=new URLSearchParams(Object.assign({},p,{callback:cb,t:Date.now()}));let done=false;window[cb]=d=>{done=true;res(d);s.remove();delete window[cb];};s.onerror=()=>{if(!done){rej(new Error("net"));s.remove();}};s.src=SCRIPT_URL+"?"+q;document.body.appendChild(s);setTimeout(()=>{if(!done)rej(new Error("timeout"));},15000);});}
+function dedupe(rows){const m={};rows.forEach(r=>{const k=r.stage+"|"+r.name+"|"+(r.type||"prediction");if(!m[k]||new Date(r.ts)>new Date(m[k].ts))m[k]=r;});return Object.values(m);}
+function side(code,away){const n=TEAMS[code][0],iso=FLAG[code];return `<div class="team ${away?'a':''}"><img class="flag" src="images/flags/${iso}.svg" alt=""><span class="tn">${n}</span></div>`;}
+
+let PREDS={},RESULTS={};
+
+async function load(){
+  let rows;
+  try{rows=dedupe((await jsonp({action:"all"})).rows||[]);}
+  catch(e){$("#out").innerHTML='<div class="empty">Couldn’t load the sheet. Refresh to try again.</div>';$("#dayTitle").textContent="";return;}
+  PREDS={};RESULTS={};
+  rows.forEach(r=>{if(r.type==="result"){if(r.stage==="GROUP")RESULTS=r.data||{};}else{PREDS[r.name]=r.data||{};}});
+  render();
+}
+
+function render(){
+  const now=Date.now();
+  let key=slateKey(now);
+  let nos=Object.keys(KO).map(Number).filter(n=>slateKey(Date.parse(KO[n]))===key);
+  // Nothing on today's slate (rest day / before or after the group stage) -> show the next day that has games.
+  let future=false;
+  if(!nos.length){
+    const ahead=Object.keys(KO).map(Number).filter(n=>Date.parse(KO[n])>now).sort((a,b)=>Date.parse(KO[a])-Date.parse(KO[b]));
+    if(ahead.length){key=slateKey(Date.parse(KO[ahead[0]]));nos=Object.keys(KO).map(Number).filter(n=>slateKey(Date.parse(KO[n]))===key);future=true;}
+  }
+  if(!nos.length){
+    $("#dayTitle").textContent="That's the group stage done";
+    $("#dayMeta").textContent="";
+    $("#out").innerHTML='<div class="empty">No more group games to show. Hop over to the <a href="index.html#leaderboard" style="color:var(--gold)">leaderboard</a> for the final standings.</div>';
+    return;
+  }
+  nos.sort((a,b)=>Date.parse(KO[a])-Date.parse(KO[b]));
+
+  const players=Object.keys(PREDS).sort((a,b)=>a.localeCompare(b));
+  const spansNext=nos.some(n=>ukDate(Date.parse(KO[n]))!==key);
+  const anyResult=nos.some(n=>RESULTS[n]);
+
+  $("#dayTitle").textContent=prettyDay(key);
+  $("#dayMeta").textContent=nos.length+(nos.length===1?" match":" matches")+" · "+players.length+(players.length===1?" player in":" players in");
+
+  const note=$("#dayNote");
+  let parts=[];
+  if(future) parts.push("No games today — here's the next match day.");
+  if(spansNext){
+    const lastUk=ukDate(Date.parse(KO[nos[nos.length-1]]));
+    parts.push("Some games kick off in the early hours of "+prettyShort(lastUk)+" UK and stay on this page until they've been played.");
+  }
+  if(parts.length){note.style.display="flex";note.innerHTML='<span class="dotr"></span><span>'+parts.join(" ")+'</span>';}
+  else note.style.display="none";
+
+  $("#legend").style.display=anyResult?"flex":"none";
+
+  let html="";
+  nos.forEach(n=>{
+    const [g,h,a]=FX[n];
+    const ms=Date.parse(KO[n]);
+    const res=RESULTS[n];
+    const ft=!!res;
+    const live=!ft && now>=ms;
+    const scoreMid = ft ? `${res[0]}<span class="v">–</span>${res[1]}` : `<span class="v">v</span>`;
+    let chips="";
+    if(players.length){
+      players.forEach(name=>{
+        const p=PREDS[name][n];
+        if(!p){chips+=`<span class="chip miss">${name}<span class="s">–</span></span>`;return;}
+        let cls="";
+        if(ft){const pts=scoreOne(p,res);cls=" b"+pts;}
+        chips+=`<span class="chip${cls}">${name}<span class="s">${p[0]}–${p[1]}</span></span>`;
+      });
+    }else{
+      chips=`<span class="none">No predictions submitted yet.</span>`;
+    }
+    html+=`<div class="mcard">
+      <div class="mtop">
+        <span class="mtime">${ukHM(ms)} UK<span class="et">${etHM(ms)} ET</span></span>
+        <span class="mmeta">Group ${g} · #${n}</span>
+        <span class="tag ${ft?'ft':(live?'live':'up')}">${ft?'Full time':(live?'In play':'Kicks off')}</span>
+      </div>
+      <div class="fixline">${side(h,0)}<div class="score">${scoreMid}</div>${side(a,1)}</div>
+      <div class="picks">${chips}</div>
+    </div>`;
+  });
+  $("#out").innerHTML=html;
+}
+load();
+</script></body></html>

@@ -221,6 +221,7 @@
     <button data-tab="predict" class="on">Predict</button>
     <button data-tab="leaderboard">Leaderboard</button>
     <button data-tab="organiser">Results</button>
+    <a class="tablink" href="today.html">Today's picks</a>
     <a class="tablink" href="predictions.html">Everyone's picks</a>
   </nav>
 
@@ -697,16 +698,25 @@ async function importCode(){
 /* ============================================================
    WIRING
    ============================================================ */
+function activateTab(name){
+  const b=document.querySelector('nav.tabs button[data-tab="'+name+'"]');
+  if(!b) return;
+  document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.remove("on"));
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("on"));
+  b.classList.add("on"); $("#"+name).classList.add("on");
+  if(name==="leaderboard") renderLeaderboard();
+  if(name==="organiser") loadResults();   // auto-show recorded results
+}
 function initTabs(){
   document.querySelectorAll("nav.tabs button").forEach(b=>{
     b.addEventListener("click",()=>{
-      document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.remove("on"));
-      document.querySelectorAll(".view").forEach(v=>v.classList.remove("on"));
-      b.classList.add("on"); $("#"+b.dataset.tab).classList.add("on");
-      if(b.dataset.tab==="leaderboard") renderLeaderboard();
-      if(b.dataset.tab==="organiser") loadResults();   // auto-show recorded results
+      activateTab(b.dataset.tab);
+      try{ history.replaceState(null,"","#"+b.dataset.tab); }catch(e){}
     });
   });
+  // Open the right tab when arriving via a link like index.html#leaderboard
+  const h=(location.hash||"").slice(1);
+  if(h && document.querySelector('nav.tabs button[data-tab="'+h+'"]')) activateTab(h);
 }
 function initDeadline(){
   const opts={weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"};
