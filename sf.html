@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World Cup 2026 Predictor — Semi-finals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b1220;
+    --panel:#121d31;
+    --panel-2:#0e1726;
+    --ink:#f4f1e8;
+    --muted:#9fb0c6;
+    --accent:#ff4d3d;
+    --gold:#f4b942;
+    --green:#36c275;
+    --blue:#5b8def;
+    --purple:#a06bff;
+    --line:rgba(255,255,255,.09);
+    --line-strong:rgba(255,255,255,.16);
+    --shadow:0 18px 40px -20px rgba(0,0,0,.7);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(255,77,61,.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 10%, rgba(244,185,66,.08), transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Hanken Grotesk",system-ui,sans-serif;
+    font-size:16px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.025'/%3E%3C/svg%3E");
+  }
+  .wrap{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:0 18px 80px}
+
+  header{padding:38px 0 22px;border-bottom:1px solid var(--line)}
+  .kicker{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);font-weight:800;margin:0 0 8px}
+  h1{font-family:"Anton",sans-serif;font-weight:400;letter-spacing:.01em;line-height:.92;
+     font-size:clamp(40px,9vw,82px);margin:0;text-transform:uppercase}
+  h1 .yr{color:var(--accent)}
+  .sub{color:var(--muted);margin:14px 0 0;max-width:60ch;font-size:15px}
+
+  .scoring{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+  .pill{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);
+        border-radius:999px;padding:8px 16px 8px 8px;font-size:14px}
+  .pill b{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;
+          font-family:"Anton";font-size:16px;color:#0b1220}
+  .pill.p0 b{background:#5a6b82;color:#fff}
+  .pill.p1 b{background:var(--gold)}
+  .pill.p3 b{background:var(--green)}
+  .pill.pb b{background:var(--purple);color:#fff}
+
+  nav.tabs{display:flex;gap:4px;margin:26px 0 24px;background:var(--panel-2);
+           border:1px solid var(--line);border-radius:14px;padding:5px;position:sticky;top:10px;z-index:20;
+           backdrop-filter:blur(8px)}
+  nav.tabs button{flex:1;border:0;background:transparent;color:var(--muted);font-family:inherit;
+    font-weight:700;font-size:14px;padding:11px 8px;border-radius:10px;cursor:pointer;transition:.18s}
+  nav.tabs button:hover{color:var(--ink)}
+  nav.tabs button.on{background:var(--accent);color:#0b1220}
+
+  .view{display:none;animation:rise .35s ease both}
+  .view.on{display:block}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  .preview-banner{background:rgba(160,107,255,.12);border:1px solid rgba(160,107,255,.4);
+    color:#e3d4ff;border-radius:12px;padding:14px 16px;margin:18px 0 0;font-size:14px;font-weight:600}
+
+  .namebar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;background:var(--panel);
+           border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:18px}
+  .namebar label{font-weight:700;font-size:14px;color:var(--muted)}
+  select,input[type=number],input[type=password]{font-family:inherit;color:var(--ink);background:var(--panel-2);
+    border:1px solid var(--line-strong);border-radius:10px;padding:10px 12px;font-size:15px}
+  select{min-width:200px;font-weight:700}
+  #pin,#resPin{width:96px;text-align:center;font-weight:700;letter-spacing:.3em}
+  #pin::placeholder,#resPin::placeholder{letter-spacing:normal;font-weight:500}
+  select:focus,input:focus{outline:2px solid var(--accent);outline-offset:1px}
+
+  .deadline{margin-left:auto;font-size:13px;color:var(--muted);text-align:right}
+  .deadline b{color:var(--ink)}
+  .locked-banner{background:rgba(255,77,61,.12);border:1px solid rgba(255,77,61,.4);
+    color:#ffd3cd;border-radius:12px;padding:14px 16px;margin-bottom:18px;font-size:14px;font-weight:600;display:none}
+
+  /* Knockout tie cards */
+  .ko-match{background:var(--panel);border:1px solid var(--line);border-radius:16px;
+            margin-bottom:14px;overflow:hidden;box-shadow:var(--shadow)}
+  .ko-tie{display:grid;grid-template-columns:60px 1fr auto 1fr;align-items:center;gap:10px;
+          padding:14px 18px}
+  .ko-tie .mno{font-size:12px;color:var(--muted);font-weight:800}
+  .ko-tie .mno span{display:block;font-size:10px;font-weight:600;opacity:.7;margin-top:2px}
+  .side{display:flex;align-items:center;gap:10px;min-width:0}
+  .side.away{flex-direction:row-reverse;text-align:right}
+  .slotchip{display:inline-grid;place-items:center;min-width:34px;height:24px;padding:0 7px;
+            border-radius:6px;font-family:"Anton";font-size:13px;color:#0b1220;flex:0 0 auto}
+  .slotchip.c1{background:var(--gold)}
+  .slotchip.c2{background:var(--blue);color:#fff}
+  .slotchip.c3{background:var(--purple);color:#fff}
+  .tname{font-weight:700;font-size:14.5px;line-height:1.2}
+  .vs{display:flex;align-items:center;gap:6px}
+  .vs input{width:48px;text-align:center;font-weight:800;font-size:17px;padding:9px 6px;
+            -moz-appearance:textfield}
+  .vs input::-webkit-outer-spin-button,.vs input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .vs .dash{color:var(--muted);font-weight:800}
+  .ko-adv{display:flex;align-items:center;gap:12px;padding:12px 18px;
+          border-top:1px solid var(--line);background:var(--panel-2);flex-wrap:wrap}
+  .ko-adv label{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .ko-adv select{min-width:240px;flex:1}
+  .ko-adv .bonus{font-size:12px;color:var(--purple);font-weight:700;margin-left:auto}
+
+  .btnrow{display:flex;flex-wrap:wrap;gap:12px;margin:8px 0 4px;align-items:center}
+  .btn{font-family:inherit;font-weight:800;font-size:15px;border:0;border-radius:12px;
+       padding:14px 22px;cursor:pointer;transition:.16s;letter-spacing:.01em}
+  .btn.primary{background:var(--accent);color:#0b1220}
+  .btn.primary:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn.ghost{background:transparent;border:1px solid var(--line-strong);color:var(--ink)}
+  .btn.ghost:hover{border-color:var(--ink)}
+  .btn:disabled{opacity:.4;cursor:not-allowed;transform:none;filter:none}
+  .progress{font-size:13px;color:var(--muted);font-weight:600}
+  .progress b{color:var(--gold)}
+
+  .note{font-size:13px;color:var(--muted);margin-top:4px}
+  .status{margin-top:14px;padding:13px 16px;border-radius:12px;font-size:14px;font-weight:600;display:none}
+  .status.ok{display:block;background:rgba(54,194,117,.12);border:1px solid rgba(54,194,117,.45);color:#bff3d6}
+  .status.warn{display:block;background:rgba(244,185,66,.12);border:1px solid rgba(244,185,66,.45);color:#ffe6ad}
+  .status.err{display:block;background:rgba(255,77,61,.12);border:1px solid rgba(255,77,61,.45);color:#ffd3cd}
+  .codebox{width:100%;margin-top:12px;background:var(--panel-2);border:1px solid var(--line-strong);
+           color:var(--muted);border-radius:10px;padding:12px;font-family:ui-monospace,monospace;
+           font-size:12px;resize:vertical;display:none}
+
+  .lb-row{display:grid;grid-template-columns:42px 1fr auto auto auto;gap:12px;align-items:center;
+          padding:14px 18px;border-bottom:1px solid var(--line);background:var(--panel)}
+  .lb-row.head{background:var(--panel-2);font-size:12px;text-transform:uppercase;letter-spacing:.08em;
+               color:var(--muted);font-weight:800;border-radius:14px 14px 0 0}
+  .lb-row .rank{font-family:"Anton";font-size:22px;color:var(--muted)}
+  .lb-row:nth-child(2) .rank{color:var(--gold)}
+  .lb-row .who{font-weight:800;font-size:16px}
+  .lb-row .pts{font-family:"Anton";font-size:26px}
+  .lb-row .mini{font-size:12px;color:var(--muted);text-align:center}
+  .lb-row .mini b{display:block;font-size:17px;color:var(--ink);font-family:"Anton";font-weight:400}
+  .lb-wrap{border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+  .lb-empty{padding:40px 18px;text-align:center;color:var(--muted)}
+
+  footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);
+         color:var(--muted);font-size:12.5px}
+  code.k{background:var(--panel-2);border:1px solid var(--line);padding:2px 7px;border-radius:6px;
+         font-size:12px;color:var(--gold)}
+  @media(max-width:620px){
+    .ko-tie{grid-template-columns:44px 1fr auto 1fr;gap:6px;padding:12px}
+    .tname{font-size:12px}
+    .vs input{width:40px;font-size:15px}
+    .ko-adv select{min-width:160px}
+    .lb-row{grid-template-columns:34px 1fr auto auto;padding:12px}
+    .lb-row .mini.exact{display:none}
+    nav.tabs button{font-size:12.5px;padding:10px 4px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="kicker">The Eason Family Sweepstake</p>
+    <h1>Semi-<span class="yr">Finals</span></h1>
+    <p class="sub">Final four. Predict each tie's score at 90 minutes, then pick who reaches the Final, however it's settled. Points add to the running total.</p>
+    <div class="scoring">
+      <span class="pill p3"><b>3</b> Exact 90-min score</span>
+      <span class="pill p1"><b>1</b> Correct result only</span>
+      <span class="pill p0"><b>0</b> Wrong</span>
+      <span class="pill pb"><b>+1</b> Who goes through</span>
+    </div>
+    <div class="preview-banner" id="previewBanner">
+      Preview. The teams aren't known yet, so each tie below shows which earlier match feeds it (Winner of Match 73 and so on). When this round is set I'll swap in the real teams and set the proper lock. Nothing here counts unless you want it to.
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button data-tab="predict" class="on">Predict</button>
+    <button data-tab="leaderboard">Leaderboard</button>
+    <button data-tab="organiser">Results</button>
+  </nav>
+
+  <!-- PREDICT -->
+  <section class="view on" id="predict">
+    <div class="locked-banner" id="lockBanner"></div>
+    <div class="namebar">
+      <label for="player">Who are you?</label>
+      <select id="player"><option value="">— choose your name —</option></select>
+      <input id="pin" type="password" inputmode="numeric" maxlength="4" placeholder="PIN" autocomplete="off" aria-label="Your 4-digit PIN">
+      <span class="progress" id="prog">0 of 2 predicted</span>
+      <span class="deadline" id="ddl"></span>
+      <span class="note" id="pinHint" style="flex-basis:100%"></span>
+    </div>
+    <div id="fixtures"></div>
+    <div class="btnrow">
+      <button class="btn primary" id="submitBtn" disabled>Submit my predictions</button>
+      <button class="btn ghost" id="codeBtn" type="button">Backup code</button>
+      <span class="note">Your picks are saved on this device as you type, so you won't lose them.</span>
+    </div>
+    <div class="status" id="predStatus"></div>
+    <textarea class="codebox" id="codeOut" rows="3" readonly></textarea>
+  </section>
+
+  <!-- LEADERBOARD -->
+  <section class="view" id="leaderboard">
+    <div class="btnrow">
+      <button class="btn ghost" id="refreshLb" type="button">Refresh</button>
+      <span class="note" id="lbMeta"></span>
+    </div>
+    <div class="lb-wrap" id="lbTable"></div>
+  </section>
+
+  <!-- ORGANISER / RESULTS -->
+  <section class="view" id="organiser">
+    <div class="namebar">
+      <strong style="font-size:15px">Enter the actual results (organiser)</strong>
+      <input id="resPin" type="password" inputmode="numeric" maxlength="4" placeholder="Organiser PIN" autocomplete="off" aria-label="Organiser PIN" style="width:120px">
+      <span class="note" style="margin-left:auto">For each finished tie, enter the 90-minute score and pick who actually went through. Leave a tie blank until it's played.</span>
+    </div>
+    <div id="resFixtures"></div>
+    <div class="btnrow">
+      <button class="btn primary" id="saveRes" type="button">Save results to sheet</button>
+      <button class="btn ghost" id="loadRes" type="button">Reload saved results</button>
+    </div>
+    <div class="status" id="resStatus"></div>
+
+    <div class="namebar" style="margin-top:26px">
+      <strong style="font-size:15px">Import a backup code</strong>
+      <span class="note" style="margin-left:auto">If someone sent you a code instead of submitting, paste it here.</span>
+    </div>
+    <textarea class="codebox" id="codeIn" rows="3" style="display:block" placeholder="Paste a backup code here..."></textarea>
+    <div class="btnrow"><button class="btn ghost" id="importBtn" type="button">Add this code to the sheet</button></div>
+    <div class="status" id="importStatus"></div>
+  </section>
+
+  <footer>
+    <p><strong>Semi-finals</strong> &middot; 14&ndash;15 July 2026 &middot; 2 ties &middot; matches 101&ndash;102.<br>
+    Same sheet, same names and PINs as the group stage. The leaderboard adds these points on top of everyone's group totals automatically.</p>
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG
+   ============================================================ */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyr6wUiySfXwM9mvkMGGqmcDqZe5iu3nZvO7Wcu9iVfCYi0w8pmq0YMXdd2w1K58ian_g/exec";
+
+const PLAYERS = ["Scott", "Vickie", "Isobel", "Joseph", "Nat", "Dave E", "Maureen", "Sean", "Jen", "Derek", "Dave W", "Jacob", "Esme", "Dave B", "Claire", "Olivia", "Josh"];
+
+// Predictions lock at the first Semi-finals kick-off. Placeholder until the
+// exact slot is confirmed when the groups finish — it just needs to be in the
+// future so the preview stays open for testing.
+const DEADLINE_UTC = "2026-07-14T19:00:00Z";
+
+/* ---- stage identity: this is what keeps R32 points separate from GROUP,
+        while the leaderboard still sums everything together ---- */
+const STAGE = "SF";
+
+/* ============================================================
+   SEMI-FINALS  (official FIFA bracket)
+   Each tie: [matchNo, [homeCode, homeLabel], [awayCode, awayLabel]]
+   ============================================================ */
+const FIXTURES = [
+  [101, ["W97","Winner Match 97"], ["W98","Winner Match 98"]],
+  [102, ["W99","Winner Match 99"], ["W100","Winner Match 100"]]
+];
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+const $ = s => document.querySelector(s);
+const MATCH_COUNT = FIXTURES.length;
+const deadline = new Date(DEADLINE_UTC);
+const isLocked = () => Date.now() > deadline.getTime();
+function lsKey(name){ return "wc26_"+STAGE+"_"+name; }
+function safeLS(fn){ try{ return fn(); }catch(e){ return null; } }
+function chipClass(code){ return code[0]==="1"?"c1":code[0]==="2"?"c2":"c3"; }
+function chipFor(no){ if(no<=88)return"R32"; if(no<=96)return"R16"; if(no<=100)return"QF"; if(no<=102)return"SF"; if(no===103)return"3RD"; return"FINAL"; }
+
+/* ============================================================
+   BUILD PREDICT VIEW
+   ============================================================ */
+function buildPlayers(){
+  const sel = $("#player");
+  PLAYERS.forEach(p=>{ const o=document.createElement("option"); o.value=p; o.textContent=p; sel.appendChild(o); });
+}
+
+function slotSide(slot, away){
+  return `<div class="side ${away?'away':''}">
+    <span class="slotchip ${chipClass(slot[0])}">${slot[0]}</span>
+    <span class="tname">${slot[1]}</span></div>`;
+}
+
+function advOptions(home, away, sel){
+  return `<option value="">— who goes through? —</option>
+    <option value="H"${sel==="H"?" selected":""}>${home[1]}</option>
+    <option value="A"${sel==="A"?" selected":""}>${away[1]}</option>`;
+}
+
+function buildFixtures(){
+  const host = $("#fixtures"); host.innerHTML="";
+  FIXTURES.forEach(f=>{
+    const [no,home,away]=f;
+    const card=document.createElement("div"); card.className="ko-match";
+    card.innerHTML =
+      `<div class="ko-tie">
+         <div class="mno">#${no}<span>${chipFor(no)}</span></div>
+         ${slotSide(home,false)}
+         <div class="vs">
+           <input type="number" min="0" max="99" inputmode="numeric" data-m="${no}" data-s="h" aria-label="${home[1]} score">
+           <span class="dash">–</span>
+           <input type="number" min="0" max="99" inputmode="numeric" data-m="${no}" data-s="a" aria-label="${away[1]} score">
+         </div>
+         ${slotSide(away,true)}
+       </div>
+       <div class="ko-adv">
+         <label for="adv-${no}">Goes through</label>
+         <select id="adv-${no}" data-adv="${no}">${advOptions(home,away,"")}</select>
+         <span class="bonus">+1 if right</span>
+       </div>`;
+    host.appendChild(card);
+  });
+}
+
+function collectPredictions(){
+  const out={};
+  FIXTURES.forEach(f=>{
+    const no=f[0];
+    const h=$(`input[data-m="${no}"][data-s="h"]`).value;
+    const a=$(`input[data-m="${no}"][data-s="a"]`).value;
+    const adv=$(`select[data-adv="${no}"]`).value;
+    if(h!=="" && a!=="" && adv!=="") out[no]=[Number(h),Number(a),adv];
+  });
+  return out;
+}
+function fillPredictions(obj){
+  FIXTURES.forEach(f=>{
+    const no=f[0], v=obj&&obj[no];
+    $(`input[data-m="${no}"][data-s="h"]`).value = v?v[0]:"";
+    $(`input[data-m="${no}"][data-s="a"]`).value = v?v[1]:"";
+    $(`select[data-adv="${no}"]`).value = (v&&v[2])?v[2]:"";
+  });
+}
+function updateProgress(){
+  const n=Object.keys(collectPredictions()).length;
+  $("#prog").innerHTML = `<b>${n}</b> of ${MATCH_COUNT} predicted`;
+  const ready = n===MATCH_COUNT && $("#player").value && !isLocked();
+  $("#submitBtn").disabled = !ready;
+}
+
+/* ============================================================
+   BACKEND
+   ============================================================ */
+function jsonp(params){
+  return new Promise((resolve,reject)=>{
+    if(!SCRIPT_URL){ reject(new Error("no-url")); return; }
+    const cb="cb_"+Math.random().toString(36).slice(2);
+    const s=document.createElement("script");
+    const q=new URLSearchParams(Object.assign({},params,{callback:cb,t:Date.now()}));
+    let done=false;
+    window[cb]=d=>{done=true;resolve(d);clean();};
+    function clean(){ delete window[cb]; s.remove(); }
+    s.onerror=()=>{ if(!done){reject(new Error("net"));clean();} };
+    s.src=SCRIPT_URL+"?"+q.toString();
+    document.body.appendChild(s);
+    setTimeout(()=>{ if(!done){reject(new Error("timeout"));clean();} },12000);
+  });
+}
+async function fetchAll(){ return (await jsonp({action:"all"})).rows||[]; }
+
+let CLAIMED=[];
+async function loadClaimed(){
+  try{ const d=await jsonp({action:"all"}); CLAIMED=(d&&d.claimed)||[]; updatePinHint(); }catch(e){}
+}
+function updatePinHint(){
+  const el=$("#pinHint"); if(!el) return;
+  const name=$("#player").value;
+  if(!name){ el.textContent=""; return; }
+  el.textContent = CLAIMED.includes(name)
+    ? "Enter your PIN to save changes. It's the same PIN you used for the group stage."
+    : "New here — choose a 4-digit PIN when you submit, and remember it.";
+}
+
+function dedupe(rows){
+  const m={};
+  rows.forEach(r=>{
+    const k=r.stage+"|"+r.name+"|"+(r.type||"prediction");
+    if(!m[k] || new Date(r.ts)>new Date(m[k].ts)) m[k]=r;
+  });
+  return Object.values(m);
+}
+
+/* ============================================================
+   SUBMIT
+   ============================================================ */
+function makeCode(name){
+  return btoa(unescape(encodeURIComponent(JSON.stringify(
+    {stage:STAGE,name:name,type:"prediction",data:collectPredictions()}
+  ))));
+}
+async function submit(){
+  const name=$("#player").value;
+  const preds=collectPredictions();
+  const pin=($("#pin").value||"").trim();
+  if(!name){ return setStatus("predStatus","err","Pick your name first."); }
+  if(Object.keys(preds).length!==MATCH_COUNT){ return setStatus("predStatus","err","Each tie needs a score and a pick for who goes through. "+Object.keys(preds).length+" of "+MATCH_COUNT+" done."); }
+  if(isLocked()){ return setStatus("predStatus","err","Predictions are locked — the Semi-finals has kicked off."); }
+  const claimed=CLAIMED.includes(name);
+  if(!/^\d{4}$/.test(pin)){
+    return setStatus("predStatus","err", claimed
+      ? "Enter "+name+"'s 4-digit PIN to save changes."
+      : "Choose a 4-digit PIN to protect your entry — you'll need it to make changes later.");
+  }
+
+  setStatus("predStatus","warn","Sending your predictions…");
+  $("#submitBtn").disabled=true;
+  try{
+    const r=await jsonp({action:"submit",stage:STAGE,name:name,type:"prediction",data:JSON.stringify(preds),pin:pin});
+    if(r&&r.ok){
+      if(!CLAIMED.includes(name)) CLAIMED.push(name);
+      updatePinHint();
+      setStatus("predStatus","ok", claimed
+        ? ("Done — "+name+"'s Semi-finals predictions are updated.")
+        : ("Done — "+name+"'s predictions are saved and your PIN is set. Remember it: you'll need it to change them before kick-off."));
+    }else if(r&&r.error==="bad_pin"){
+      setStatus("predStatus","err","That PIN doesn't match the one set for "+name+". Try again, or ask Scott to reset it.");
+    }else if(r&&r.error==="pin_required"){
+      setStatus("predStatus","err","Choose a 4-digit PIN to protect your entry.");
+    }else{
+      showCode(name);
+      setStatus("predStatus","warn","Sent, but couldn't confirm"+(r&&r.error?" ("+r.error+")":"")+". Copy the backup code below and send it to Scott.");
+    }
+  }catch(e){
+    showCode(name);
+    setStatus("predStatus","err", e.message==="no-url"
+      ? "No sheet is connected yet. Copy the backup code below and send it to Scott."
+      : "Couldn't reach the sheet. Copy the backup code below and send it to Scott.");
+  }finally{ updateProgress(); }
+}
+function showCode(name){
+  const box=$("#codeOut"); box.value=makeCode(name||$("#player").value||"player");
+  box.style.display="block"; box.select();
+}
+function setStatus(id,kind,msg){ const el=$("#"+id); el.className="status "+kind; el.textContent=msg; }
+
+/* ============================================================
+   LEADERBOARD  (sums every stage in the sheet: GROUP + R32 + ...)
+   ============================================================ */
+function scoreOne(pred,res){
+  // Works for group rows ([h,a]) and knockout rows ([h,a,adv]).
+  if(!pred||!res) return 0;
+  let pts=0;
+  if(pred[0]===res[0] && pred[1]===res[1]) pts=3;
+  else if(Math.sign(pred[0]-pred[1])===Math.sign(res[0]-res[1])) pts=1;
+  if(pred[2] && res[2] && pred[2]===res[2]) pts+=1;   // who-goes-through bonus
+  return pts;
+}
+async function renderLeaderboard(){
+  const tbl=$("#lbTable");
+  tbl.innerHTML='<div class="lb-empty">Loading…</div>';
+  let rows;
+  try{ rows=dedupe(await fetchAll()); }
+  catch(e){
+    tbl.innerHTML='<div class="lb-empty">'+(SCRIPT_URL?'Could not load the sheet. Try Refresh.':'No sheet connected yet — add the script URL in the file.')+'</div>';
+    return;
+  }
+  const results={}; // stage -> {matchNo:[h,a(,adv)]}
+  rows.filter(r=>r.type==="result").forEach(r=>{ results[r.stage]=r.data||{}; });
+  const preds=rows.filter(r=>r.type==="prediction");
+  const players={};
+  preds.forEach(r=>{
+    const p=players[r.name]=players[r.name]||{name:r.name,total:0,exact:0,through:0,scored:0};
+    const res=results[r.stage]||{};
+    Object.keys(r.data||{}).forEach(mn=>{
+      const pr=r.data[mn], rs=res[mn];
+      if(rs){
+        let pts=0;
+        if(pr[0]===rs[0] && pr[1]===rs[1]){ pts=3; p.exact++; }
+        else if(Math.sign(pr[0]-pr[1])===Math.sign(rs[0]-rs[1])){ pts=1; }
+        if(pr[2] && rs[2] && pr[2]===rs[2]){ pts+=1; p.through++; }
+        p.total+=pts; p.scored++;
+      }
+    });
+  });
+  const list=Object.values(players).sort((a,b)=>b.total-a.total||b.exact-a.exact);
+  const playedR32=Object.keys(results[STAGE]||{}).length;
+  $("#lbMeta").textContent = list.length
+    ? "Semi-finals: "+playedR32+" of "+MATCH_COUNT+" scored · running total includes the group stage"
+    : "";
+  if(!list.length){ tbl.innerHTML='<div class="lb-empty">No predictions submitted yet.</div>'; return; }
+  let html='<div class="lb-row head"><span>#</span><span>Player</span><span class="mini">Through</span><span class="mini exact">Exact</span><span>Points</span></div>';
+  list.forEach((p,i)=>{
+    html+=`<div class="lb-row">
+      <span class="rank">${i+1}</span>
+      <span class="who">${p.name}</span>
+      <span class="mini"><b>${p.through}</b>through</span>
+      <span class="mini exact"><b>${p.exact}</b>spot on</span>
+      <span class="pts">${p.total}</span></div>`;
+  });
+  tbl.innerHTML=html;
+}
+
+/* ============================================================
+   ORGANISER — results entry
+   ============================================================ */
+function buildResultsForm(){
+  const host=$("#resFixtures"); host.innerHTML="";
+  FIXTURES.forEach(f=>{
+    const [no,home,away]=f;
+    const card=document.createElement("div"); card.className="ko-match";
+    card.innerHTML=
+      `<div class="ko-tie">
+         <div class="mno">#${no}<span>${chipFor(no)}</span></div>
+         ${slotSide(home,false)}
+         <div class="vs">
+           <input type="number" min="0" max="99" inputmode="numeric" data-rm="${no}" data-s="h">
+           <span class="dash">–</span>
+           <input type="number" min="0" max="99" inputmode="numeric" data-rm="${no}" data-s="a">
+         </div>
+         ${slotSide(away,true)}
+       </div>
+       <div class="ko-adv">
+         <label for="radv-${no}">Went through</label>
+         <select id="radv-${no}" data-radv="${no}">${advOptions(home,away,"")}</select>
+       </div>`;
+    host.appendChild(card);
+  });
+}
+function collectResults(){
+  const out={};
+  FIXTURES.forEach(f=>{
+    const no=f[0];
+    const h=$(`input[data-rm="${no}"][data-s="h"]`).value;
+    const a=$(`input[data-rm="${no}"][data-s="a"]`).value;
+    const adv=$(`select[data-radv="${no}"]`).value;
+    if(h!=="" && a!=="" && adv!=="") out[no]=[Number(h),Number(a),adv];
+  });
+  return out;
+}
+function fillResults(obj){
+  FIXTURES.forEach(f=>{
+    const no=f[0], v=obj&&obj[no];
+    $(`input[data-rm="${no}"][data-s="h"]`).value = v?v[0]:"";
+    $(`input[data-rm="${no}"][data-s="a"]`).value = v?v[1]:"";
+    $(`select[data-radv="${no}"]`).value = (v&&v[2])?v[2]:"";
+  });
+}
+async function saveResults(){
+  const pin=($("#resPin").value||"").trim();
+  if(!/^\d{4}$/.test(pin)){ return setStatus("resStatus","err","Enter your organiser PIN (4 digits)."); }
+  setStatus("resStatus","warn","Saving results…");
+  try{
+    const r=await jsonp({action:"submit",stage:STAGE,name:"__RESULTS__",type:"result",data:JSON.stringify(collectResults()),pin:pin});
+    if(r&&r.ok){ setStatus("resStatus","ok","Results saved. Hit Refresh on the Leaderboard tab to see them counted."); }
+    else if(r&&r.error==="bad_pin"){ setStatus("resStatus","err","That organiser PIN is wrong."); }
+    else if(r&&r.error==="pin_required"){ setStatus("resStatus","err","Set a 4-digit organiser PIN."); }
+    else{ setStatus("resStatus","err","Couldn't save"+(r&&r.error?" ("+r.error+")":"")+"."); }
+  }catch(e){
+    setStatus("resStatus","err",e.message==="no-url"?"No sheet connected yet — add the script URL in the file.":"Couldn't reach the sheet.");
+  }
+}
+async function loadResults(){
+  setStatus("resStatus","warn","Loading…");
+  try{
+    const rows=dedupe(await fetchAll());
+    const r=rows.find(x=>x.stage===STAGE && x.type==="result");
+    fillResults(r?r.data:{});
+    setStatus("resStatus","ok",r?"Loaded saved results.":"No Semi-finals results saved yet.");
+  }catch(e){ setStatus("resStatus","err","Couldn't reach the sheet."); }
+}
+async function importCode(){
+  const raw=$("#codeIn").value.trim();
+  if(!raw) return setStatus("importStatus","err","Paste a code first.");
+  let obj;
+  try{ obj=JSON.parse(decodeURIComponent(escape(atob(raw)))); }
+  catch(e){ return setStatus("importStatus","err","That code doesn't look right."); }
+  if(!obj.name||!obj.data) return setStatus("importStatus","err","That code is missing a name or predictions.");
+  const adminPin=($("#resPin").value||"").trim();
+  if(!/^\d{4}$/.test(adminPin)) return setStatus("importStatus","err","Enter your organiser PIN in the results section above — it authorises importing on someone's behalf.");
+  setStatus("importStatus","warn","Adding "+obj.name+"…");
+  try{
+    const r=await jsonp({action:"submit",stage:obj.stage||STAGE,name:obj.name,type:obj.type||"prediction",data:JSON.stringify(obj.data),adminPin:adminPin});
+    if(r&&r.ok){ setStatus("importStatus","ok","Added "+obj.name+"'s predictions to the sheet."); $("#codeIn").value=""; }
+    else if(r&&r.error==="bad_pin"){ setStatus("importStatus","err","Your organiser PIN is wrong, so the import was blocked."); }
+    else{ setStatus("importStatus","err","Couldn't add it"+(r&&r.error?" ("+r.error+")":"")+"."); }
+  }catch(e){ setStatus("importStatus","err","Couldn't reach the sheet."); }
+}
+
+/* ============================================================
+   WIRING
+   ============================================================ */
+function activateTab(name){
+  const b=document.querySelector('nav.tabs button[data-tab="'+name+'"]');
+  if(!b) return;
+  document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.remove("on"));
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("on"));
+  b.classList.add("on"); $("#"+name).classList.add("on");
+  if(name==="leaderboard") renderLeaderboard();
+  if(name==="organiser") loadResults();
+}
+function initTabs(){
+  document.querySelectorAll("nav.tabs button").forEach(b=>{
+    b.addEventListener("click",()=>{
+      activateTab(b.dataset.tab);
+      try{ history.replaceState(null,"","#"+b.dataset.tab); }catch(e){}
+    });
+  });
+  const h=(location.hash||"").slice(1);
+  if(h && document.querySelector('nav.tabs button[data-tab="'+h+'"]')) activateTab(h);
+}
+function initDeadline(){
+  const opts={weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"};
+  $("#ddl").innerHTML = "Locks at first kick-off<br><b>"+deadline.toLocaleString("en-GB",opts)+" UK</b>";
+  if(isLocked()){
+    $("#lockBanner").style.display="block";
+    $("#lockBanner").textContent="Predictions are locked — the Semi-finals has kicked off. You can still watch the leaderboard.";
+    document.querySelectorAll('#fixtures input, #fixtures select').forEach(i=>i.disabled=true);
+    $("#submitBtn").disabled=true;
+  }
+}
+function saveDraft(){
+  const name=$("#player").value;
+  safeLS(()=>localStorage.setItem(lsKey(name||"__draft__"),JSON.stringify(collectPredictions())));
+  updateProgress();
+}
+function init(){
+  buildPlayers(); buildFixtures(); buildResultsForm(); initTabs(); initDeadline();
+
+  let lastPlayer = "";
+  const draft = safeLS(()=>JSON.parse(localStorage.getItem(lsKey("__draft__"))));
+  if(draft && Object.keys(draft).length) fillPredictions(draft);
+
+  $("#player").addEventListener("change",()=>{
+    const name=$("#player").value;
+    const saved=name?safeLS(()=>JSON.parse(localStorage.getItem(lsKey(name)))):null;
+    if(saved && Object.keys(saved).length){
+      fillPredictions(saved);
+    }else if(name && lastPlayer===""){
+      safeLS(()=>localStorage.setItem(lsKey(name),JSON.stringify(collectPredictions())));
+    }else{
+      fillPredictions({});
+    }
+    if(name) safeLS(()=>localStorage.removeItem(lsKey("__draft__")));
+    lastPlayer=name;
+    $("#pin").value=""; updatePinHint();
+    updateProgress();
+  });
+  // Scores fire "input"; the goes-through dropdown fires "change".
+  $("#fixtures").addEventListener("input",saveDraft);
+  $("#fixtures").addEventListener("change",saveDraft);
+  $("#submitBtn").addEventListener("click",submit);
+  $("#codeBtn").addEventListener("click",()=>showCode($("#player").value));
+  $("#refreshLb").addEventListener("click",renderLeaderboard);
+  $("#saveRes").addEventListener("click",saveResults);
+  $("#loadRes").addEventListener("click",loadResults);
+  $("#importBtn").addEventListener("click",importCode);
+  updateProgress();
+  loadClaimed();
+}
+init();
+</script>
+</body>
+</html>
