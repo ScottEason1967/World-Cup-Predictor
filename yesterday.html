@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en-GB"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>World Cup 2026 Predictor — Today's Picks</title>
+<title>World Cup 2026 Predictor — Yesterday's Picks</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -25,6 +25,13 @@ h1 .yr{color:var(--accent)}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin:2px 2px 16px}
 .dot{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;font-family:"Anton";font-size:12px;color:#0b1220;margin-right:5px}
 .d3{background:var(--green)}.d1{background:var(--gold)}.d0{background:#5a6b82;color:#fff}
+.summary{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 2px 18px}
+.summary h3{margin:0 0 9px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.slines{display:flex;flex-wrap:wrap;gap:7px}
+.sline{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;background:var(--panel);border:1px solid var(--line2);border-radius:999px;padding:5px 6px 5px 12px;color:var(--ink)}
+.sline b{display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 6px;border-radius:999px;font-family:"Anton";font-weight:400;font-size:14px;background:#22304a;color:var(--ink)}
+.sline.top b{background:var(--green);color:#0b1220}
+.sline.zero{color:var(--muted)}
 .mcard{background:var(--panel);border:1px solid var(--line);border-radius:16px;margin-bottom:14px;overflow:hidden;box-shadow:var(--shadow)}
 .mtop{display:flex;align-items:center;gap:10px 14px;padding:11px 16px;border-bottom:1px solid var(--line);background:var(--panel2);flex-wrap:wrap}
 .mtime{font-weight:800;font-size:13.5px}
@@ -55,15 +62,15 @@ footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);color:v
 </style></head><body><div class="wrap">
 <header>
   <p class="kicker">The Eason Family Sweepstake</p>
-  <h1>Today's <span class="yr">Picks</span></h1>
-  <p class="sub">Everyone's predictions for the fixtures still to come, all on one page. You'll see today's remaining games plus any that kick off in the early hours of tomorrow morning. Each game drops off once it kicks off, so this always shows what's next.</p>
+  <h1>Yesterday's <span class="yr">Picks</span></h1>
+  <p class="sub">How the family got on in the games that have just finished. Wake up, see what everyone picked, and who banked the points. Green is an exact scoreline, gold is the right result. It rolls over to the next match day once those games are done.</p>
 </header>
 <nav class="nav">
   <a href="index.html">Predict</a>
   <a href="index.html#leaderboard">Leaderboard</a>
   <a href="index.html#organiser">Results</a>
-  <a href="yesterday.html">Yesterday</a>
-  <a href="today.html" class="on">Today's picks</a>
+  <a href="yesterday.html" class="on">Yesterday</a>
+  <a href="today.html">Today's picks</a>
   <a href="predictions.html">Everyone's picks</a>
 </nav>
 <div class="daybar"><h2 id="dayTitle">Loading…</h2><span class="meta" id="dayMeta"></span></div>
@@ -73,7 +80,11 @@ footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);color:v
   <span><span class="dot d1">1</span>Right result</span>
   <span><span class="dot d0">0</span>Wrong</span>
 </div>
-<div id="out"><div class="empty">Loading today's fixtures…</div></div>
+<div class="summary" id="summary" style="display:none">
+  <h3>Points from these games</h3>
+  <div class="slines" id="slines"></div>
+</div>
+<div id="out"><div class="empty">Loading yesterday's fixtures…</div></div>
 <footer><p>Read-only view. Pulls the latest predictions and results straight from the sheet each time you open it. Times shown UK, with ET alongside.</p></footer>
 </div>
 <script>
@@ -97,10 +108,6 @@ function prettyDay(key){
   const d=new Date(key+"T12:00:00Z");
   return d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
 }
-function prettyShort(key){
-  const d=new Date(key+"T12:00:00Z");
-  return d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
-}
 function scoreOne(p,r){if(!p||!r)return null;if(p[0]===r[0]&&p[1]===r[1])return 3;const s=(x,y)=>(x>y)-(x<y);return s(p[0],p[1])===s(r[0],r[1])?1:0;}
 function jsonp(p){return new Promise((res,rej)=>{const cb="cb_"+Math.random().toString(36).slice(2);const s=document.createElement("script");const q=new URLSearchParams(Object.assign({},p,{callback:cb,t:Date.now()}));let done=false;window[cb]=d=>{done=true;res(d);s.remove();delete window[cb];};s.onerror=()=>{if(!done){rej(new Error("net"));s.remove();}};s.src=SCRIPT_URL+"?"+q;document.body.appendChild(s);setTimeout(()=>{if(!done)rej(new Error("timeout"));},15000);});}
 function dedupe(rows){const m={};rows.forEach(r=>{const k=r.stage+"|"+r.name+"|"+(r.type||"prediction");if(!m[k]||new Date(r.ts)>new Date(m[k].ts))m[k]=r;});return Object.values(m);}
@@ -119,39 +126,48 @@ async function load(){
 
 function render(){
   const now=Date.now();
-  // Forward-looking: anchor on the next match that hasn't kicked off yet, then show that whole
-  // night's slate. As each game kicks off the view moves on, so it always shows what's still to come
-  // (today's remaining games plus any that kick off in the early hours tomorrow).
-  const ahead=Object.keys(KO).map(Number).filter(n=>Date.parse(KO[n])>now).sort((a,b)=>Date.parse(KO[a])-Date.parse(KO[b]));
-  if(!ahead.length){
-    $("#dayTitle").textContent="That's the group stage done";
+  // Backward-looking: show the most recent completed slate — the games that have already
+  // kicked off and finished. A slate only becomes "yesterday" once every game in it has
+  // started, so the view rolls forward cleanly the morning after each match day.
+  const slates={};
+  Object.keys(KO).map(Number).forEach(n=>{const k=slateKey(Date.parse(KO[n]));(slates[k]=slates[k]||[]).push(n);});
+  const pastKeys=Object.keys(slates).filter(k=>slates[k].every(n=>Date.parse(KO[n])<now)).sort();
+  if(!pastKeys.length){
+    $("#dayTitle").textContent="Nothing played yet";
     $("#dayMeta").textContent="";
     $("#dayNote").style.display="none";
     $("#legend").style.display="none";
-    $("#out").innerHTML='<div class="empty">No more group games to come. Hop over to the <a href="index.html#leaderboard" style="color:var(--gold)">leaderboard</a> for the final standings.</div>';
+    $("#summary").style.display="none";
+    $("#out").innerHTML='<div class="empty">The first games haven’t finished yet. Head to <a href="today.html" style="color:var(--gold)">today’s picks</a> for what’s coming up.</div>';
     return;
   }
-  const key=slateKey(Date.parse(KO[ahead[0]]));
-  const nos=Object.keys(KO).map(Number).filter(n=>slateKey(Date.parse(KO[n]))===key).sort((a,b)=>Date.parse(KO[a])-Date.parse(KO[b]));
+  const key=pastKeys[pastKeys.length-1];
+  const nos=slates[key].sort((a,b)=>Date.parse(KO[a])-Date.parse(KO[b]));
 
   const players=Object.keys(PREDS).sort((a,b)=>a.localeCompare(b));
-  const spansNext=nos.some(n=>ukDate(Date.parse(KO[n]))!==key);
   const anyResult=nos.some(n=>RESULTS[n]);
 
   $("#dayTitle").textContent=prettyDay(key);
   $("#dayMeta").textContent=nos.length+(nos.length===1?" match":" matches")+" · "+players.length+(players.length===1?" player in":" players in");
 
   const note=$("#dayNote");
-  let parts=[];
-  if(ukDate(now)!==key) parts.push("Showing the next match day.");
-  if(spansNext){
-    const lastUk=ukDate(Date.parse(KO[nos[nos.length-1]]));
-    parts.push("Includes games kicking off in the early hours of "+prettyShort(lastUk)+" UK.");
-  }
-  if(parts.length){note.style.display="flex";note.innerHTML='<span class="dotr"></span><span>'+parts.join(" ")+'</span>';}
+  if(!anyResult){note.style.display="flex";note.innerHTML='<span class="dotr"></span><span>Scores for these games aren’t in the sheet yet. They’ll fill in shortly.</span>';}
   else note.style.display="none";
 
   $("#legend").style.display=anyResult?"flex":"none";
+
+  // Points banked from this slate, per player — the "who got what" at a glance.
+  const sum=$("#summary");
+  if(anyResult && players.length){
+    const tally=players.map(name=>{
+      let pts=0,exact=0;
+      nos.forEach(n=>{const r=RESULTS[n],p=PREDS[name][n];if(r&&p){const s=scoreOne(p,r);pts+=s;if(s===3)exact++;}});
+      return {name,pts,exact};
+    }).sort((a,b)=>b.pts-a.pts || b.exact-a.exact || a.name.localeCompare(b.name));
+    const max=tally[0].pts;
+    $("#slines").innerHTML=tally.map(t=>`<span class="sline${t.pts===max&&max>0?' top':''}${t.pts===0?' zero':''}">${t.name}<b>${t.pts}</b></span>`).join("");
+    sum.style.display="block";
+  }else sum.style.display="none";
 
   let html="";
   nos.forEach(n=>{
@@ -171,7 +187,7 @@ function render(){
         chips+=`<span class="chip${cls}">${name}<span class="s">${p[0]}–${p[1]}</span></span>`;
       });
     }else{
-      chips=`<span class="none">No predictions submitted yet.</span>`;
+      chips=`<span class="none">No predictions submitted.</span>`;
     }
     html+=`<div class="mcard">
       <div class="mtop">
