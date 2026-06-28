@@ -26,7 +26,7 @@ Uses a headless Chromium (Playwright) in the sandbox to fire the JSONP `action=s
 The task now also maintains a second result row, `stage=R32`, for the Round of 32 (matches 73 to 88). It is a separate row from `GROUP` and the leaderboard sums the two stages.
 
 Knockout data format is `{matchNo:[home90, away90, adv]}`:
-- `home90`/`away90` — goals at the END OF 90 MINUTES only (normal time plus stoppage). Extra-time goals (91 to 120) are excluded; penalty-shootout goals are never goals.
+- `home90`/`away90` — goals at the END OF NORMAL TIME only, i.e. the full-time whistle of the second half INCLUDING all stoppage/injury time. Judge by phase of play, not the clock number: stoppage-time goals (45+X, 90+X, a 95th-minute goal in a game that did not go to extra time) COUNT; only goals in the extra-time periods are excluded. Penalty-shootout goals are never goals.
 - `adv` — "H" if the first-listed (home) team progressed, "A" if the second-listed (away) team progressed. A decisive 90-minute result forces `adv` to the winner; only a 90-minute draw leaves it to ET/penalties.
 
 This mirrors `r32.html` exactly (`scoreOne`, `collectResults`): 3 points for the exact 90-minute score, 1 for the right 90-minute result, +1 for the right progressor.
