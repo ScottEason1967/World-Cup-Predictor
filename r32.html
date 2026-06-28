@@ -69,6 +69,10 @@
   nav.tabs a.tablink{flex:1;display:flex;align-items:center;justify-content:center;text-decoration:none;
     color:var(--muted);font-family:inherit;font-weight:700;font-size:14px;padding:11px 8px;border-radius:10px;transition:.18s}
   nav.tabs a.tablink:hover{color:var(--ink)}
+  .stage-switch{display:inline-flex;gap:4px;margin:18px 0 0;background:var(--panel-2);border:1px solid var(--line);border-radius:999px;padding:4px}
+  .stage-switch a{text-decoration:none;color:var(--muted);font-family:inherit;font-weight:800;font-size:13px;letter-spacing:.02em;padding:8px 18px;border-radius:999px;transition:.18s}
+  .stage-switch a:hover{color:var(--ink)}
+  .stage-switch a.on{background:var(--gold);color:#0b1220}
 
   .view{display:none;animation:rise .35s ease both}
   .view.on{display:block}
@@ -138,7 +142,7 @@
            color:var(--muted);border-radius:10px;padding:12px;font-family:ui-monospace,monospace;
            font-size:12px;resize:vertical;display:none}
 
-  .lb-row{display:grid;grid-template-columns:42px 1fr auto auto auto;gap:12px;align-items:center;
+  .lb-row{display:grid;grid-template-columns:42px 1fr auto auto auto auto;gap:12px;align-items:center;
           padding:14px 18px;border-bottom:1px solid var(--line);background:var(--panel)}
   .lb-row.head{background:var(--panel-2);font-size:12px;text-transform:uppercase;letter-spacing:.08em;
                color:var(--muted);font-weight:800;border-radius:14px 14px 0 0}
@@ -161,7 +165,7 @@
     .vs input{width:40px;font-size:15px}
     .ko-adv select{min-width:160px}
     .lb-row{grid-template-columns:34px 1fr auto auto;padding:12px}
-    .lb-row .mini.exact{display:none}
+    .lb-row .mini.exact,.lb-row .mini.res{display:none}
     nav.tabs button{font-size:12.5px;padding:10px 4px}
   }
 </style>
@@ -181,16 +185,19 @@
     <div class="preview-banner" id="previewBanner">
       The Round of 32 is set. Get all 16 predictions in before the first tie kicks off — everything locks at once when South Africa v Canada starts (around 8pm UK today). After that the page is read-only and you just follow the leaderboard.
     </div>
+  <div class="stage-switch" aria-label="Tournament stage">
+    <a href="index.html">Group Stage</a>
+    <a href="r32.html" class="on">Round of 32</a>
+  </div>
   </header>
 
   <nav class="tabs">
     <button data-tab="predict" class="on">Predict</button>
     <button data-tab="leaderboard">Leaderboard</button>
     <button data-tab="organiser">Results</button>
-    <a class="tablink" href="index.html">Group stage</a>
     <a class="tablink" href="yesterday.html">Yesterday</a>
     <a class="tablink" href="today.html">Today's picks</a>
-    <a class="tablink" href="predictions.html">Everyone's picks</a>
+    <a class="tablink" href="predictions.html?stage=R32">Everyone's picks</a>
   </nav>
 
   <!-- PREDICT -->
@@ -518,32 +525,34 @@ async function renderLeaderboard(){
   const preds=rows.filter(r=>r.type==="prediction");
   const players={};
   preds.forEach(r=>{
-    const p=players[r.name]=players[r.name]||{name:r.name,total:0,exact:0,through:0,scored:0};
+    const p=players[r.name]=players[r.name]||{name:r.name,total:0,scored:0,rEx:0,rRes:0,rThr:0};
     const res=results[r.stage]||{};
+    const isR=r.stage===STAGE; // R32-only breakdown; total stays cumulative
     Object.keys(r.data||{}).forEach(mn=>{
       const pr=r.data[mn], rs=res[mn];
       if(rs){
         let pts=0;
-        if(pr[0]===rs[0] && pr[1]===rs[1]){ pts=3; p.exact++; }
-        else if(Math.sign(pr[0]-pr[1])===Math.sign(rs[0]-rs[1])){ pts=1; }
-        if(pr[2] && rs[2] && pr[2]===rs[2]){ pts+=1; p.through++; }
+        if(pr[0]===rs[0] && pr[1]===rs[1]){ pts=3; if(isR)p.rEx++; }
+        else if(Math.sign(pr[0]-pr[1])===Math.sign(rs[0]-rs[1])){ pts=1; if(isR)p.rRes++; }
+        if(pr[2] && rs[2] && pr[2]===rs[2]){ pts+=1; if(isR)p.rThr++; }
         p.total+=pts; p.scored++;
       }
     });
   });
-  const list=Object.values(players).sort((a,b)=>b.total-a.total||b.exact-a.exact);
+  const list=Object.values(players).sort((a,b)=>b.total-a.total||b.rEx-a.rEx);
   const playedR32=Object.keys(results[STAGE]||{}).length;
   $("#lbMeta").textContent = list.length
-    ? "Round of 32: "+playedR32+" of "+MATCH_COUNT+" scored · running total includes the group stage"
+    ? "Round of 32: "+playedR32+" of "+MATCH_COUNT+" scored · breakdown is this round; Points is the running total incl. the group stage"
     : "";
   if(!list.length){ tbl.innerHTML='<div class="lb-empty">No predictions submitted yet.</div>'; return; }
-  let html='<div class="lb-row head"><span>#</span><span>Player</span><span class="mini">Through</span><span class="mini exact">Exact</span><span>Points</span></div>';
+  let html='<div class="lb-row head"><span>#</span><span>Player</span><span class="mini res">Result</span><span class="mini">Through</span><span class="mini exact">Spot on</span><span>Points</span></div>';
   list.forEach((p,i)=>{
     html+=`<div class="lb-row">
       <span class="rank">${i+1}</span>
       <span class="who">${p.name}</span>
-      <span class="mini"><b>${p.through}</b>through</span>
-      <span class="mini exact"><b>${p.exact}</b>spot on</span>
+      <span class="mini res"><b>${p.rRes}</b>result</span>
+      <span class="mini"><b>${p.rThr}</b>through</span>
+      <span class="mini exact"><b>${p.rEx}</b>spot on</span>
       <span class="pts">${p.total}</span></div>`;
   });
   tbl.innerHTML=html;

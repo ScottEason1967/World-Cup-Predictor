@@ -135,7 +135,7 @@
            color:var(--muted);border-radius:10px;padding:12px;font-family:ui-monospace,monospace;
            font-size:12px;resize:vertical;display:none}
 
-  .lb-row{display:grid;grid-template-columns:42px 1fr auto auto auto;gap:12px;align-items:center;
+  .lb-row{display:grid;grid-template-columns:42px 1fr auto auto auto auto;gap:12px;align-items:center;
           padding:14px 18px;border-bottom:1px solid var(--line);background:var(--panel)}
   .lb-row.head{background:var(--panel-2);font-size:12px;text-transform:uppercase;letter-spacing:.08em;
                color:var(--muted);font-weight:800;border-radius:14px 14px 0 0}
@@ -158,7 +158,7 @@
     .vs input{width:40px;font-size:15px}
     .ko-adv select{min-width:160px}
     .lb-row{grid-template-columns:34px 1fr auto auto;padding:12px}
-    .lb-row .mini.exact{display:none}
+    .lb-row .mini.exact,.lb-row .mini.res{display:none}
     nav.tabs button{font-size:12.5px;padding:10px 4px}
   }
 </style>
@@ -305,6 +305,27 @@ function advOptions(home, away, sel){
     <option value="A"${sel==="A"?" selected":""}>${away[1]}</option>`;
 }
 
+/* Coherence: a decisive 90-min score already settles who goes through, so the
+   advance pick is locked to the winner. Only a level score leaves it open,
+   because that's the one case penalties decide. Stops anyone hedging a win on
+   the score with the other team to go through. */
+function syncAdvance(no, advAttr, scoreAttr){
+  const hi=$(`input[${scoreAttr}="${no}"][data-s="h"]`);
+  const ai=$(`input[${scoreAttr}="${no}"][data-s="a"]`);
+  const sel=$(`select[${advAttr}="${no}"]`);
+  if(!hi||!ai||!sel) return;
+  const h=hi.value, a=ai.value;
+  if(h!=="" && a!=="" && Number(h)!==Number(a)){
+    sel.value = Number(h)>Number(a) ? "H" : "A";
+    sel.disabled = true;
+    sel.title = "Set from your score \u2014 the winning side goes through. Predict a draw if you want to pick who wins on penalties.";
+  }else{
+    sel.disabled = false;
+    sel.title = "";
+  }
+}
+function syncAllAdvance(advAttr, scoreAttr){ FIXTURES.forEach(f=>syncAdvance(f[0], advAttr, scoreAttr)); }
+
 function buildFixtures(){
   const host = $("#fixtures"); host.innerHTML="";
   FIXTURES.forEach(f=>{
@@ -336,7 +357,8 @@ function collectPredictions(){
     const no=f[0];
     const h=$(`input[data-m="${no}"][data-s="h"]`).value;
     const a=$(`input[data-m="${no}"][data-s="a"]`).value;
-    const adv=$(`select[data-adv="${no}"]`).value;
+    let adv=$(`select[data-adv="${no}"]`).value;
+    if(h!=="" && a!=="" && Number(h)!==Number(a)) adv = Number(h)>Number(a) ? "H" : "A"; // decisive score forces the winner through
     if(h!=="" && a!=="" && adv!=="") out[no]=[Number(h),Number(a),adv];
   });
   return out;
@@ -348,6 +370,7 @@ function fillPredictions(obj){
     $(`input[data-m="${no}"][data-s="a"]`).value = v?v[1]:"";
     $(`select[data-adv="${no}"]`).value = (v&&v[2])?v[2]:"";
   });
+  syncAllAdvance("data-adv","data-m");
 }
 function updateProgress(){
   const n=Object.keys(collectPredictions()).length;
@@ -477,32 +500,34 @@ async function renderLeaderboard(){
   const preds=rows.filter(r=>r.type==="prediction");
   const players={};
   preds.forEach(r=>{
-    const p=players[r.name]=players[r.name]||{name:r.name,total:0,exact:0,through:0,scored:0};
+    const p=players[r.name]=players[r.name]||{name:r.name,total:0,scored:0,rEx:0,rRes:0,rThr:0};
     const res=results[r.stage]||{};
+    const isR=r.stage===STAGE; // this round only; total stays cumulative
     Object.keys(r.data||{}).forEach(mn=>{
       const pr=r.data[mn], rs=res[mn];
       if(rs){
         let pts=0;
-        if(pr[0]===rs[0] && pr[1]===rs[1]){ pts=3; p.exact++; }
-        else if(Math.sign(pr[0]-pr[1])===Math.sign(rs[0]-rs[1])){ pts=1; }
-        if(pr[2] && rs[2] && pr[2]===rs[2]){ pts+=1; p.through++; }
+        if(pr[0]===rs[0] && pr[1]===rs[1]){ pts=3; if(isR)p.rEx++; }
+        else if(Math.sign(pr[0]-pr[1])===Math.sign(rs[0]-rs[1])){ pts=1; if(isR)p.rRes++; }
+        if(pr[2] && rs[2] && pr[2]===rs[2]){ pts+=1; if(isR)p.rThr++; }
         p.total+=pts; p.scored++;
       }
     });
   });
-  const list=Object.values(players).sort((a,b)=>b.total-a.total||b.exact-a.exact);
+  const list=Object.values(players).sort((a,b)=>b.total-a.total||b.rEx-a.rEx);
   const playedR32=Object.keys(results[STAGE]||{}).length;
   $("#lbMeta").textContent = list.length
     ? "Quarter-finals: "+playedR32+" of "+MATCH_COUNT+" scored · running total includes the group stage"
     : "";
   if(!list.length){ tbl.innerHTML='<div class="lb-empty">No predictions submitted yet.</div>'; return; }
-  let html='<div class="lb-row head"><span>#</span><span>Player</span><span class="mini">Through</span><span class="mini exact">Exact</span><span>Points</span></div>';
+  let html='<div class="lb-row head"><span>#</span><span>Player</span><span class="mini res">Result</span><span class="mini">Through</span><span class="mini exact">Spot on</span><span>Points</span></div>';
   list.forEach((p,i)=>{
     html+=`<div class="lb-row">
       <span class="rank">${i+1}</span>
       <span class="who">${p.name}</span>
-      <span class="mini"><b>${p.through}</b>through</span>
-      <span class="mini exact"><b>${p.exact}</b>spot on</span>
+      <span class="mini res"><b>${p.rRes}</b>result</span>
+      <span class="mini"><b>${p.rThr}</b>through</span>
+      <span class="mini exact"><b>${p.rEx}</b>spot on</span>
       <span class="pts">${p.total}</span></div>`;
   });
   tbl.innerHTML=html;
@@ -540,7 +565,8 @@ function collectResults(){
     const no=f[0];
     const h=$(`input[data-rm="${no}"][data-s="h"]`).value;
     const a=$(`input[data-rm="${no}"][data-s="a"]`).value;
-    const adv=$(`select[data-radv="${no}"]`).value;
+    let adv=$(`select[data-radv="${no}"]`).value;
+    if(h!=="" && a!=="" && Number(h)!==Number(a)) adv = Number(h)>Number(a) ? "H" : "A"; // decisive score: the winner went through
     if(h!=="" && a!=="" && adv!=="") out[no]=[Number(h),Number(a),adv];
   });
   return out;
@@ -552,6 +578,7 @@ function fillResults(obj){
     $(`input[data-rm="${no}"][data-s="a"]`).value = v?v[1]:"";
     $(`select[data-radv="${no}"]`).value = (v&&v[2])?v[2]:"";
   });
+  syncAllAdvance("data-radv","data-rm");
 }
 async function saveResults(){
   const pin=($("#resPin").value||"").trim();
@@ -627,6 +654,7 @@ function initDeadline(){
   }
 }
 function saveDraft(){
+  syncAllAdvance("data-adv","data-m");
   const name=$("#player").value;
   safeLS(()=>localStorage.setItem(lsKey(name||"__draft__"),JSON.stringify(collectPredictions())));
   updateProgress();
@@ -656,6 +684,10 @@ function init(){
   // Scores fire "input"; the goes-through dropdown fires "change".
   $("#fixtures").addEventListener("input",saveDraft);
   $("#fixtures").addEventListener("change",saveDraft);
+  $("#resFixtures").addEventListener("input",()=>syncAllAdvance("data-radv","data-rm"));
+  $("#resFixtures").addEventListener("change",()=>syncAllAdvance("data-radv","data-rm"));
+  syncAllAdvance("data-adv","data-m");
+  syncAllAdvance("data-radv","data-rm");
   $("#submitBtn").addEventListener("click",submit);
   $("#codeBtn").addEventListener("click",()=>showCode($("#player").value));
   $("#refreshLb").addEventListener("click",renderLeaderboard);

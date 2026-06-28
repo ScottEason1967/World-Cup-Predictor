@@ -36,7 +36,7 @@ select:focus{outline:2px solid var(--accent);outline-offset:1px}
 .out{text-align:right;font-size:12px;color:var(--muted);white-space:nowrap}
 .out .res{font-weight:700;color:var(--ink)}
 .badge{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 5px;border-radius:11px;font-family:"Anton";font-size:12px;color:#0b1220;margin-left:6px}
-.b3{background:var(--green)}.b1{background:var(--gold)}.b0{background:#5a6b82;color:#fff}
+.b3{background:var(--green)}.b1{background:var(--gold)}.b0{background:#5a6b82;color:#fff}.b2{background:var(--gold)}.b4{background:var(--green)}
 .empty{padding:50px 18px;text-align:center;color:var(--muted)}
 footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
 @media(max-width:620px){.row{grid-template-columns:28px 1fr auto 1fr;gap:7px;padding:10px 12px}.tn{font-size:12.5px}.out{grid-column:2/5;text-align:left;margin-top:-3px}.pred{font-size:16px}}
@@ -44,6 +44,7 @@ footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);color:v
 .nav a{flex:1;min-width:84px;text-align:center;text-decoration:none;color:var(--muted);font-family:inherit;font-weight:700;font-size:14px;padding:11px 8px;border-radius:10px;transition:.18s}
 .nav a:hover{color:var(--ink)}
 .nav a.on{background:var(--accent);color:#0b1220}
+.stage-switch{display:inline-flex;gap:4px;margin:6px 0 2px;background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:4px}.stage-switch a{text-decoration:none;color:var(--muted);font-family:inherit;font-weight:800;font-size:13px;letter-spacing:.02em;padding:8px 18px;border-radius:999px;transition:.18s}.stage-switch a:hover{color:var(--ink)}.stage-switch a.on{background:var(--gold);color:#0b1220}
 @media(max-width:620px){.nav a{font-size:12.5px;padding:10px 4px;min-width:72px}}
 </style></head><body><div class="wrap">
 <header>
@@ -59,6 +60,10 @@ footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);color:v
   <a href="today.html">Today's picks</a>
   <a href="predictions.html" class="on">Everyone's picks</a>
 </nav>
+<div class="stage-switch" aria-label="Tournament stage">
+  <a href="predictions.html?stage=GROUP" id="swG">Group Stage</a>
+  <a href="predictions.html?stage=R32" id="swR">Round of 32</a>
+</div>
 <div class="bar">
   <label for="who">Whose predictions?</label>
   <select id="who"><option value="">— choose a name —</option></select>
@@ -136,6 +141,9 @@ const FIXTURES = [
   [21,"L","GHA","PAN","19:00",1],[22,"L","ENG","CRO","16:00",1],[45,"L","ENG","GHA","16:00",2],
   [46,"L","PAN","CRO","19:00",2],[67,"L","PAN","ENG","17:00",3],[68,"L","CRO","GHA","17:00",3]
 ];
+const R32FX=[[73,"RSA","CAN"],[74,"GER","PAR"],[75,"NED","MAR"],[76,"BRA","JPN"],[77,"FRA","SWE"],[78,"CIV","NOR"],[79,"MEX","ECU"],[80,"ENG","COD"],[81,"USA","BIH"],[82,"BEL","SEN"],[83,"POR","CRO"],[84,"ESP","AUT"],[85,"SUI","ALG"],[86,"ARG","CPV"],[87,"COL","GHA"],[88,"AUS","EGY"]];
+const STAGE=(new URLSearchParams(location.search).get("stage")==="R32")?"R32":"GROUP";
+document.getElementById(STAGE==="R32"?"swR":"swG").classList.add("on");
 const $=s=>document.querySelector(s);
 const byG={};FIXTURES.forEach(f=>{(byG[f[1]]=byG[f[1]]||[]).push(f)});
 let PREDS={}, RESULTS={};
@@ -148,7 +156,7 @@ async function load(){
   try{rows=dedupe((await jsonp({action:"all"})).rows||[])}
   catch(e){$("#out").innerHTML='<div class="empty">Couldn’t load the sheet. Refresh to try again.</div>';return}
   PREDS={};RESULTS={};
-  rows.forEach(r=>{if(r.type==="result"){if(r.stage==="GROUP")RESULTS=r.data||{}}else{PREDS[r.name]=r.data||{}}});
+  rows.forEach(r=>{if(r.type==="result"){RESULTS=Object.assign(RESULTS,r.data||{})}else{PREDS[r.name]=Object.assign(PREDS[r.name]||{},r.data||{})}});
   const names=Object.keys(PREDS).sort((a,b)=>a.localeCompare(b));
   const sel=$("#who");
   names.forEach(n=>{const o=document.createElement("option");o.value=n;o.textContent=n;sel.appendChild(o)});
@@ -158,6 +166,21 @@ function render(name){
   const data=PREDS[name];
   if(!data){$("#out").innerHTML='<div class="empty">Choose a name above to see their predictions.</div>';$("#tot").textContent="";$("#legend").style.display="none";return}
   let total=0,scored=0,html="";
+  if(STAGE==="R32"){
+    html+='<div class="group"><div class="gh"><span class="gtag" style="background:var(--gold);color:#0b1220">32</span><h3>Round of 32</h3></div>';
+    R32FX.forEach(f=>{
+      const[no,h,a]=f, p=data[no], r=RESULTS[no];
+      const pred = p ? `${p[0]}–${p[1]}` : "–";
+      let out="–";
+      if(r){ const base=scoreOne(p,r); let pts=base||0; if(p&&r&&p[2]&&r[2]&&p[2]===r[2])pts+=1; if(base!==null){total+=pts;scored++;} out=`<span class="res">${r[0]}–${r[1]}</span>${base!==null?`<span class="badge b${pts}">${pts}</span>`:""}`; }
+      html+=`<div class="row"><div class="mno">#${no}</div>${side(h,0)}<div class="pred">${pred}</div>${side(a,1)}<div class="out">${out}</div></div>`;
+    });
+    html+="</div>";
+    $("#out").innerHTML=html;
+    $("#legend").style.display = scored?"flex":"none";
+    $("#tot").innerHTML = scored ? `<b>${total}</b>${total===1?"point":"points"} · ${scored} scored` : "<b>–</b>not scored yet";
+    return;
+  }
   Object.keys(GROUP_META).forEach(g=>{
     const meta=GROUP_META[g];
     html+=`<div class="group"><div class="gh"><span class="gtag" style="background:${meta.c}">${g}</span><h3>Group ${g}</h3></div>`;
