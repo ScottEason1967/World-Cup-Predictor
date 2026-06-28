@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>World Cup 2026 Predictor — Group Stage</title>
+<script>
+// The group stage is finished, so opening the app lands on the live Round of 32.
+// Stay on this group-stage page only when it's explicitly requested via ?stage=group.
+if(location.search.indexOf("stage=group")===-1){location.replace("r32.html"+location.hash);}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -223,7 +228,7 @@
       The group stage is done and the <b>Round of 32 is open</b>. Make your knockout predictions before tonight's first kick-off, around 8pm UK. Tap here to go through &rarr;
     </a>
   <div class="stage-switch" aria-label="Tournament stage">
-    <a href="index.html" class="on">Group Stage</a>
+    <a href="index.html?stage=group" class="on">Group Stage</a>
     <a href="r32.html">Round of 32</a>
   </div>
   </header>
@@ -729,6 +734,15 @@ function initTabs(){
   // Open the right tab when arriving via a link like index.html#leaderboard
   const h=(location.hash||"").slice(1);
   if(h && document.querySelector('nav.tabs button[data-tab="'+h+'"]')) activateTab(h);
+  // Carry the active tab across the Group / Round of 32 switch and keep the group page
+  // reachable (via ?stage=group) so toggling never silently resets you to Predict.
+  document.querySelectorAll(".stage-switch a").forEach(a=>{
+    a.addEventListener("click",e=>{
+      e.preventDefault();
+      const toR32=/r32\.html/.test(a.getAttribute("href"));
+      location.href=(toR32?"r32.html":"index.html?stage=group")+(location.hash||"");
+    });
+  });
 }
 function initDeadline(){
   const opts={weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"};

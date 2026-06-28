@@ -186,7 +186,7 @@
       The Round of 32 is set. Get all 16 predictions in before the first tie kicks off — everything locks at once when South Africa v Canada starts (around 8pm UK today). After that the page is read-only and you just follow the leaderboard.
     </div>
   <div class="stage-switch" aria-label="Tournament stage">
-    <a href="index.html">Group Stage</a>
+    <a href="index.html?stage=group">Group Stage</a>
     <a href="r32.html" class="on">Round of 32</a>
   </div>
   </header>
@@ -667,6 +667,15 @@ function initTabs(){
   });
   const h=(location.hash||"").slice(1);
   if(h && document.querySelector('nav.tabs button[data-tab="'+h+'"]')) activateTab(h);
+  // Carry the active tab across the Group / Round of 32 switch and keep the group page
+  // reachable (via ?stage=group) so toggling never silently resets you to Predict.
+  document.querySelectorAll(".stage-switch a").forEach(a=>{
+    a.addEventListener("click",e=>{
+      e.preventDefault();
+      const toR32=/r32\.html/.test(a.getAttribute("href"));
+      location.href=(toR32?"r32.html":"index.html?stage=group")+(location.hash||"");
+    });
+  });
 }
 function initDeadline(){
   const opts={weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"};
