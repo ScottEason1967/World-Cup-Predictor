@@ -67,6 +67,10 @@
   nav.tabs button:hover{color:var(--ink)}
   nav.tabs button.on{background:var(--accent);color:#0b1220}
 
+  .stage-switch{display:flex;flex-wrap:wrap;width:fit-content;max-width:100%;gap:4px;margin:18px 0 0;background:var(--panel-2);border:1px solid var(--line);border-radius:16px;padding:4px}
+  .stage-switch a{text-decoration:none;color:var(--muted);font-family:inherit;font-weight:800;font-size:12.5px;letter-spacing:.02em;padding:8px 12px;border-radius:999px;transition:.18s;white-space:nowrap}
+  .stage-switch a:hover{color:var(--ink)}
+  .stage-switch a.on{background:var(--gold);color:#0b1220}
   .view{display:none;animation:rise .35s ease both}
   .view.on{display:block}
   @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
@@ -178,6 +182,14 @@
     <div class="preview-banner" id="previewBanner">
       Preview. The teams aren't known yet, so each tie below shows which earlier match feeds it (Winner of Match 73 and so on). When this round is set I'll swap in the real teams and set the proper lock. Nothing here counts unless you want it to.
     </div>
+  <div class="stage-switch" aria-label="Tournament stage">
+    <a href="index.html?stage=group">Groups</a>
+    <a href="r32.html">R32</a>
+    <a href="r16.html">R16</a>
+    <a href="qf.html" class="on">QF</a>
+    <a href="sf.html">SF</a>
+    <a href="final.html">Final</a>
+  </div>
   </header>
 
   <nav class="tabs">
@@ -642,6 +654,13 @@ function initTabs(){
   });
   const h=(location.hash||"").slice(1);
   if(h && document.querySelector('nav.tabs button[data-tab="'+h+'"]')) activateTab(h);
+  // Carry the active tab across the round switcher so toggling never resets your tab.
+  document.querySelectorAll(".stage-switch a").forEach(a=>{
+    a.addEventListener("click",e=>{
+      e.preventDefault();
+      location.href=a.getAttribute("href").split("#")[0]+(location.hash||"");
+    });
+  });
 }
 function initDeadline(){
   const opts={weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"};
