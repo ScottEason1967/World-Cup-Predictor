@@ -44,7 +44,7 @@ There is no login. Picking your name from the dropdown is how the game knows who
 - **Apps Script endpoint:** `https://script.google.com/macros/s/AKfycbyr6wUiySfXwM9mvkMGGqmcDqZe5iu3nZvO7Wcu9iVfCYi0w8pmq0YMXdd2w1K58ian_g/exec` (`SCRIPT_URL`, `index.html` line 293; same value used by the scheduled task).
 - **Organiser PIN:** `1712`. Used by the scheduled task to write the `__RESULTS__` row, and as the admin override for importing backup codes. Treat as a secret. It is not stored in the repo, it lives in the task spec and the `pins` tab.
 - **Prediction deadline:** `DEADLINE_UTC = "2026-06-11T19:00:00Z"` (`index.html` line 300), which is 20:00 UK on 11 June 2026, first kick-off Mexico v South Africa. Picks lock at that instant and the form goes read-only.
-- **Group stage:** 72 matches, numbered 1 to 72. Knockouts are separate stages and out of scope for the results task.
+- **Group stage:** 72 matches, numbered 1 to 72, complete. **Round of 32:** 16 ties, numbered 73 to 88 (stage `R32`), now also handled by the results task. Knockout results store `[home90, away90, adv]` — the 90-minute score only, plus `adv` ("H"/"A") for who progressed. R16/QF/SF/Final remain out of scope for now.
 - **Players:** 17 defined, 16 had submitted at least once as at 22 June 2026 (Dave W had not).
 
 ## Framework: how the app actually works
@@ -68,7 +68,8 @@ There is no login. Picking your name from the dropdown is how the game knows who
 - **Do not assume the leaderboard dedupes to a player's latest prediction.** As at 22 June the code sums across all prediction rows for a name. Sean has 8 prediction rows and Dave E has 2. This may inflate their totals. Flagged as an open item in the state file. Verify against the code before making any claim about anyone's standing.
 - **Do not expose the organiser PIN (1712) or the `pins` tab contents** in anything family-facing.
 - **Do not invent player names or match numbers.** The 17 names and the 1 to 72 fixture map are fixed. Use them, do not guess.
-- **Do not claim a knockout result was handled by the task.** The task is group stage only, matches 1 to 72.
+- **The results task now covers GROUP (1 to 72) and R32 (73 to 88).** R16, QF, SF, Final and the third-place play-off are still out of scope. Do not claim those later rounds are handled by the task. The two result rows are kept separate by `stage` (`GROUP` and `R32`); never merge knockout results into the group row.
 
 ## Revision history
 - 22 June 2026: initial build. Grounded in `index.html`, `Code.gs`, `SETUP.md`, the live sheet snapshot, and the `wc26-auto-results` task spec. Mode A.
+- 28 June 2026: group stage finished and fully verified (all 72 on the sheet). `wc26-auto-results` extended to handle the Round of 32 (stage `R32`, matches 73 to 88): records the 90-minute score only plus the progressing team as `[home90, away90, adv]`, written as a separate `R32` `__RESULTS__` row, self-correcting only when the verified set changes. R16/QF/SF/Final nav tabs hidden in the round switcher across all app pages (`display:none`, Groups + R32 left visible); change saved locally, still to be pushed to GitHub Pages.
