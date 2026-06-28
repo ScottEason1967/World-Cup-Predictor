@@ -176,7 +176,7 @@
       <span class="pill pb"><b>+1</b> Who goes through</span>
     </div>
     <div class="preview-banner" id="previewBanner">
-      Preview. The teams aren't known until the groups finish, so the ties below show the bracket slots (Winner Group A and so on). When the group stage ends I'll swap these for the real teams and set the proper lock time. Nothing you enter now counts against the live game unless you want it to.
+      The Round of 32 is set. Get all 16 predictions in before the first tie kicks off — everything locks at once when South Africa v Canada starts (around 8pm UK today). After that the page is read-only and you just follow the leaderboard.
     </div>
   </header>
 
@@ -253,10 +253,9 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyr6wUiySfXwM9mvkMGG
 
 const PLAYERS = ["Scott", "Vickie", "Isobel", "Joseph", "Nat", "Dave E", "Maureen", "Sean", "Jen", "Derek", "Dave W", "Jacob", "Esme", "Dave B", "Claire", "Olivia", "Josh"];
 
-// Predictions lock at the first Round of 32 kick-off. Placeholder until the
-// exact slot is confirmed when the groups finish — it just needs to be in the
-// future so the preview stays open for testing.
-const DEADLINE_UTC = "2026-06-28T16:00:00Z";
+// Predictions lock at the first Round of 32 kick-off:
+// South Africa v Canada, 28 June 2026, 12:00 PT / 15:00 ET / 20:00 UK.
+const DEADLINE_UTC = "2026-06-28T19:00:00Z";
 
 /* ---- stage identity: this is what keeps R32 points separate from GROUP,
         while the leaderboard still sums everything together ---- */
@@ -267,22 +266,22 @@ const STAGE = "R32";
    Each tie: [matchNo, [homeCode, homeLabel], [awayCode, awayLabel]]
    ============================================================ */
 const FIXTURES = [
-  [73, ["2A","Runner-up Group A"], ["2B","Runner-up Group B"]],
-  [74, ["1E","Winner Group E"],    ["3","3rd place · A/B/C/D/F"]],
-  [75, ["1F","Winner Group F"],    ["2C","Runner-up Group C"]],
-  [76, ["1C","Winner Group C"],    ["2F","Runner-up Group F"]],
-  [77, ["1I","Winner Group I"],    ["3","3rd place · C/D/F/G/H"]],
-  [78, ["2E","Runner-up Group E"], ["2I","Runner-up Group I"]],
-  [79, ["1A","Winner Group A"],    ["3","3rd place · C/E/F/H/I"]],
-  [80, ["1L","Winner Group L"],    ["3","3rd place · E/H/I/J/K"]],
-  [81, ["1D","Winner Group D"],    ["3","3rd place · B/E/F/I/J"]],
-  [82, ["1G","Winner Group G"],    ["3","3rd place · A/E/H/I/J"]],
-  [83, ["2K","Runner-up Group K"], ["2L","Runner-up Group L"]],
-  [84, ["1H","Winner Group H"],    ["2J","Runner-up Group J"]],
-  [85, ["1B","Winner Group B"],    ["3","3rd place · E/F/G/I/J"]],
-  [86, ["1J","Winner Group J"],    ["2H","Runner-up Group H"]],
-  [87, ["1K","Winner Group K"],    ["3","3rd place · D/E/I/J/L"]],
-  [88, ["2D","Runner-up Group D"], ["2G","Runner-up Group G"]]
+  [73, ["2A","South Africa"],   ["2B","Canada"]],
+  [74, ["1E","Germany"],        ["3D","Paraguay"]],
+  [75, ["1F","Netherlands"],    ["2C","Morocco"]],
+  [76, ["1C","Brazil"],         ["2F","Japan"]],
+  [77, ["1I","France"],         ["3F","Sweden"]],
+  [78, ["2E","Ivory Coast"],    ["2I","Norway"]],
+  [79, ["1A","Mexico"],         ["3E","Ecuador"]],
+  [80, ["1L","England"],        ["3K","DR Congo"]],
+  [81, ["1D","USA"],            ["3B","Bosnia & Herzegovina"]],
+  [82, ["1G","Belgium"],        ["3I","Senegal"]],
+  [83, ["2K","Portugal"],       ["2L","Croatia"]],
+  [84, ["1H","Spain"],          ["2J","Austria"]],
+  [85, ["1B","Switzerland"],    ["3J","Algeria"]],
+  [86, ["1J","Argentina"],      ["2H","Cabo Verde"]],
+  [87, ["1K","Colombia"],       ["3L","Ghana"]],
+  [88, ["2D","Australia"],      ["2G","Egypt"]]
 ];
 
 /* ============================================================
