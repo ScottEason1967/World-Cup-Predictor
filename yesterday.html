@@ -198,4 +198,10 @@ function render(){
         ${(ft||live)?`<span class="tag ${ft?'ft':'live'}">${ft?'Full time':'In play'}</span>`:''}
       </div>
       <div class="fixline">${side(h,0)}<div class="score">${scoreMid}</div>${side(a,1)}</div>
-      <d
+      <div class="picks">${chips}</div>
+    </div>`;
+  });
+  $("#out").innerHTML=html;
+}
+load();
+</script></body></html>
