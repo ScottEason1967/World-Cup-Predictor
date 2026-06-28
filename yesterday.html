@@ -127,11 +127,13 @@ async function load(){
 function render(){
   const now=Date.now();
   // Backward-looking: show the most recent completed slate — the games that have already
-  // kicked off and finished. A slate only becomes "yesterday" once every game in it has
-  // started, so the view rolls forward cleanly the morning after each match day.
+  // kicked off and finished. The slate boundary is 07:00 UTC / 08:00 UK, so a day only rolls into
+  // "yesterday" once that boundary passes — a match that's in play right now stays on Today's page,
+  // it isn't pulled back here just because every game in its slate has started.
   const slates={};
   Object.keys(KO).map(Number).forEach(n=>{const k=slateKey(Date.parse(KO[n]));(slates[k]=slates[k]||[]).push(n);});
-  const pastKeys=Object.keys(slates).filter(k=>slates[k].every(n=>Date.parse(KO[n])<now)).sort();
+  const todayKey=slateKey(now);
+  const pastKeys=Object.keys(slates).filter(k=>k<todayKey).sort();
   if(!pastKeys.length){
     $("#dayTitle").textContent="Nothing played yet";
     $("#dayMeta").textContent="";
@@ -196,10 +198,4 @@ function render(){
         ${(ft||live)?`<span class="tag ${ft?'ft':'live'}">${ft?'Full time':'In play'}</span>`:''}
       </div>
       <div class="fixline">${side(h,0)}<div class="score">${scoreMid}</div>${side(a,1)}</div>
-      <div class="picks">${chips}</div>
-    </div>`;
-  });
-  $("#out").innerHTML=html;
-}
-load();
-</script></body></html>
+      <d

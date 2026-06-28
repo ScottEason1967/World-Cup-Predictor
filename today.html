@@ -119,20 +119,26 @@ async function load(){
 
 function render(){
   const now=Date.now();
-  // Forward-looking: anchor on the next match that hasn't kicked off yet, then show that whole
-  // night's slate. As each game kicks off the view moves on, so it always shows what's still to come
-  // (today's remaining games plus any that kick off in the early hours tomorrow).
-  const ahead=Object.keys(KO).map(Number).filter(n=>Date.parse(KO[n])>now).sort((a,b)=>Date.parse(KO[a])-Date.parse(KO[b]));
-  if(!ahead.length){
-    $("#dayTitle").textContent="No games coming up right now";
-    $("#dayMeta").textContent="";
-    $("#dayNote").style.display="none";
-    $("#legend").style.display="none";
-    $("#out").innerHTML='<div class="empty">Nothing scheduled right now. Check the <a href="index.html#leaderboard" style="color:var(--gold)">leaderboard</a> for the latest standings.</div>';
-    return;
+  // Anchor on the current football day (slate boundary 07:00 UTC / 08:00 UK), so today's games stay
+  // on this page while they're upcoming, in play, and after full time — they don't vanish the moment
+  // they kick off. Only if there are no games today (a rest day) do we fall forward to the next slate.
+  const slates={};
+  Object.keys(KO).map(Number).forEach(n=>{const k=slateKey(Date.parse(KO[n]));(slates[k]=slates[k]||[]).push(n);});
+  const todayKey=slateKey(now);
+  let key=todayKey, fellForward=false;
+  if(!slates[todayKey]){
+    const future=Object.keys(slates).filter(k=>k>todayKey).sort();
+    if(!future.length){
+      $("#dayTitle").textContent="No games coming up right now";
+      $("#dayMeta").textContent="";
+      $("#dayNote").style.display="none";
+      $("#legend").style.display="none";
+      $("#out").innerHTML='<div class="empty">Nothing scheduled right now. Check the <a href="index.html#leaderboard" style="color:var(--gold)">leaderboard</a> for the latest standings.</div>';
+      return;
+    }
+    key=future[0];fellForward=true;
   }
-  const key=slateKey(Date.parse(KO[ahead[0]]));
-  const nos=Object.keys(KO).map(Number).filter(n=>slateKey(Date.parse(KO[n]))===key).sort((a,b)=>Date.parse(KO[a])-Date.parse(KO[b]));
+  const nos=slates[key].slice().sort((a,b)=>Date.parse(KO[a])-Date.parse(KO[b]));
 
   const players=Object.keys(PREDS).sort((a,b)=>a.localeCompare(b));
   const spansNext=nos.some(n=>ukDate(Date.parse(KO[n]))!==key);
@@ -143,7 +149,7 @@ function render(){
 
   const note=$("#dayNote");
   let parts=[];
-  if(ukDate(now)!==key) parts.push("Showing the next match day.");
+  if(fellForward) parts.push("No games today — showing the next match day.");
   if(spansNext){
     const lastUk=ukDate(Date.parse(KO[nos[nos.length-1]]));
     parts.push("Includes games kicking off in the early hours of "+prettyShort(lastUk)+" UK.");
@@ -179,11 +185,4 @@ function render(){
         <span class="mmeta">${g==="R32"?"Round of 32":"Group "+g} · #${n}</span>
         ${(ft||live)?`<span class="tag ${ft?'ft':'live'}">${ft?'Full time':'In play'}</span>`:''}
       </div>
-      <div class="fixline">${side(h,0)}<div class="score">${scoreMid}</div>${side(a,1)}</div>
-      <div class="picks">${chips}</div>
-    </div>`;
-  });
-  $("#out").innerHTML=html;
-}
-load();
-</script></body></html>
+      <div class="fixline">${side(h,0)}<div c
