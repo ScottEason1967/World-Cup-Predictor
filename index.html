@@ -588,9 +588,11 @@ function setStatus(id,kind,msg){ const el=$("#"+id); el.className="status "+kind
    ============================================================ */
 function scoreOne(pred,res){
   if(!pred||!res) return 0;
-  if(pred[0]===res[0] && pred[1]===res[1]) return 3;
-  const ps=Math.sign(pred[0]-pred[1]), rs=Math.sign(res[0]-res[1]);
-  return ps===rs ? 1 : 0;
+  let pts=0;
+  if(pred[0]===res[0] && pred[1]===res[1]) pts=3;
+  else if(Math.sign(pred[0]-pred[1])===Math.sign(res[0]-res[1])) pts=1;
+  if(pred[2] && res[2] && pred[2]===res[2]) pts+=1;   // who-goes-through bonus
+  return pts;
 }
 async function renderLeaderboard(){
   const tbl=$("#lbTable");
@@ -612,9 +614,11 @@ async function renderLeaderboard(){
     const res=results[r.stage]||{};
     Object.keys(r.data||{}).forEach(mn=>{
       if(res[mn]){
-        const pts=scoreOne(r.data[mn],res[mn]);
+        const pr=r.data[mn], rs=res[mn];
+        const pts=scoreOne(pr,rs);
         p.total+=pts; p.scored++;
-        if(pts===3)p.exact++; else if(pts===1)p.correct++;
+        if(pr[0]===rs[0]&&pr[1]===rs[1])p.exact++;
+        else if(Math.sign(pr[0]-pr[1])===Math.sign(rs[0]-rs[1]))p.correct++;
       }
     });
   });

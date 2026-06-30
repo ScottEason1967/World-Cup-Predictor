@@ -108,7 +108,7 @@ function prettyDay(key){
   const d=new Date(key+"T12:00:00Z");
   return d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
 }
-function scoreOne(p,r){if(!p||!r)return null;if(p[0]===r[0]&&p[1]===r[1])return 3;const s=(x,y)=>(x>y)-(x<y);return s(p[0],p[1])===s(r[0],r[1])?1:0;}
+function scoreOne(p,r){if(!p||!r)return null;let pts=0;if(p[0]===r[0]&&p[1]===r[1])pts=3;else{const s=(x,y)=>(x>y)-(x<y);if(s(p[0],p[1])===s(r[0],r[1]))pts=1;}if(p[2]&&r[2]&&p[2]===r[2])pts+=1;return pts;}
 function jsonp(p){return new Promise((res,rej)=>{const cb="cb_"+Math.random().toString(36).slice(2);const s=document.createElement("script");const q=new URLSearchParams(Object.assign({},p,{callback:cb,t:Date.now()}));let done=false;window[cb]=d=>{done=true;res(d);s.remove();delete window[cb];};s.onerror=()=>{if(!done){rej(new Error("net"));s.remove();}};s.src=SCRIPT_URL+"?"+q;document.body.appendChild(s);setTimeout(()=>{if(!done)rej(new Error("timeout"));},15000);});}
 function dedupe(rows){const m={};rows.forEach(r=>{const k=r.stage+"|"+r.name+"|"+(r.type||"prediction");if(!m[k]||new Date(r.ts)>new Date(m[k].ts))m[k]=r;});return Object.values(m);}
 function side(code,away){const n=TEAMS[code][0],iso=FLAG[code];return `<div class="team ${away?'a':''}"><img class="flag" src="images/flags/${iso}.svg" alt=""><span class="tn">${n}</span></div>`;}
@@ -163,7 +163,7 @@ function render(){
   if(anyResult && players.length){
     const tally=players.map(name=>{
       let pts=0,exact=0;
-      nos.forEach(n=>{const r=RESULTS[n],p=PREDS[name][n];if(r&&p){const s=scoreOne(p,r);pts+=s;if(s===3)exact++;}});
+      nos.forEach(n=>{const r=RESULTS[n],p=PREDS[name][n];if(r&&p){const s=scoreOne(p,r);pts+=s;if(p[0]===r[0]&&p[1]===r[1])exact++;}});
       return {name,pts,exact};
     }).sort((a,b)=>b.pts-a.pts || b.exact-a.exact || a.name.localeCompare(b.name));
     const max=tally[0].pts;
@@ -184,9 +184,14 @@ function render(){
       players.forEach(name=>{
         const p=PREDS[name][n];
         if(!p){chips+=`<span class="chip miss">${name}<span class="s">–</span></span>`;return;}
-        let cls="";
-        if(ft){const pts=scoreOne(p,res);cls=" b"+pts;}
-        chips+=`<span class="chip${cls}">${name}<span class="s">${p[0]}–${p[1]}</span></span>`;
+        let cls="",bonusMark="";
+        if(ft){
+          const ex=(p[0]===res[0]&&p[1]===res[1]);
+          const sg=(x,y)=>(x>y)-(x<y);
+          cls=ex?" b3":(sg(p[0],p[1])===sg(res[0],res[1])?" b1":" b0");
+          if(p[2]&&res[2]&&p[2]===res[2])bonusMark=`<span class="s">+1</span>`;
+        }
+        chips+=`<span class="chip${cls}">${name}<span class="s">${p[0]}–${p[1]}</span>${bonusMark}</span>`;
       });
     }else{
       chips=`<span class="none">No predictions submitted.</span>`;
