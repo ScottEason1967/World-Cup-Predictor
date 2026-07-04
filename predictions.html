@@ -63,6 +63,7 @@ footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);color:v
 <div class="stage-switch" aria-label="Tournament stage">
   <a href="predictions.html?stage=GROUP" id="swG">Group Stage</a>
   <a href="predictions.html?stage=R32" id="swR">Round of 32</a>
+  <a href="predictions.html?stage=R16" id="swR16">Round of 16</a>
 </div>
 <div class="bar">
   <label for="who">Whose predictions?</label>
@@ -142,8 +143,10 @@ const FIXTURES = [
   [46,"L","PAN","CRO","19:00",2],[67,"L","PAN","ENG","17:00",3],[68,"L","CRO","GHA","17:00",3]
 ];
 const R32FX=[[73,"RSA","CAN"],[74,"GER","PAR"],[75,"NED","MAR"],[76,"BRA","JPN"],[77,"FRA","SWE"],[78,"CIV","NOR"],[79,"MEX","ECU"],[80,"ENG","COD"],[81,"USA","BIH"],[82,"BEL","SEN"],[83,"POR","CRO"],[84,"ESP","AUT"],[85,"SUI","ALG"],[86,"ARG","CPV"],[87,"COL","GHA"],[88,"AUS","EGY"]];
-const STAGE=(new URLSearchParams(location.search).get("stage")==="R32")?"R32":"GROUP";
-document.getElementById(STAGE==="R32"?"swR":"swG").classList.add("on");
+const R16FX=[[89,"PAR","FRA"],[90,"CAN","MAR"],[91,"BRA","NOR"],[92,"MEX","ENG"],[93,"POR","ESP"],[94,"USA","BEL"],[95,"ARG","EGY"],[96,"SUI","COL"]];
+const _sp=new URLSearchParams(location.search).get("stage");
+const STAGE=(_sp==="R32"||_sp==="R16")?_sp:"GROUP";
+document.getElementById(STAGE==="R16"?"swR16":STAGE==="R32"?"swR":"swG").classList.add("on");
 const $=s=>document.querySelector(s);
 const byG={};FIXTURES.forEach(f=>{(byG[f[1]]=byG[f[1]]||[]).push(f)});
 let PREDS={}, RESULTS={};
@@ -166,9 +169,12 @@ function render(name){
   const data=PREDS[name];
   if(!data){$("#out").innerHTML='<div class="empty">Choose a name above to see their predictions.</div>';$("#tot").textContent="";$("#legend").style.display="none";return}
   let total=0,scored=0,html="";
-  if(STAGE==="R32"){
-    html+='<div class="group"><div class="gh"><span class="gtag" style="background:var(--gold);color:#0b1220">32</span><h3>Round of 32</h3></div>';
-    R32FX.forEach(f=>{
+  if(STAGE==="R32"||STAGE==="R16"){
+    const KOFX = STAGE==="R16"?R16FX:R32FX;
+    const gtag = STAGE==="R16"?"16":"32";
+    const title = STAGE==="R16"?"Round of 16":"Round of 32";
+    html+='<div class="group"><div class="gh"><span class="gtag" style="background:var(--gold);color:#0b1220">'+gtag+'</span><h3>'+title+'</h3></div>';
+    KOFX.forEach(f=>{
       const[no,h,a]=f, p=data[no], r=RESULTS[no];
       const pred = p ? `${p[0]}–${p[1]}` : "–";
       let out="–";

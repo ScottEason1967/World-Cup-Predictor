@@ -66,6 +66,9 @@
     font-weight:700;font-size:14px;padding:11px 8px;border-radius:10px;cursor:pointer;transition:.18s}
   nav.tabs button:hover{color:var(--ink)}
   nav.tabs button.on{background:var(--accent);color:#0b1220}
+  nav.tabs a.tablink{flex:1;display:flex;align-items:center;justify-content:center;text-decoration:none;
+    color:var(--muted);font-family:inherit;font-weight:700;font-size:14px;padding:11px 8px;border-radius:10px;transition:.18s}
+  nav.tabs a.tablink:hover{color:var(--ink)}
 
   .stage-switch{display:flex;flex-wrap:wrap;width:fit-content;max-width:100%;gap:4px;margin:18px 0 0;background:var(--panel-2);border:1px solid var(--line);border-radius:16px;padding:4px}
   .stage-switch a{text-decoration:none;color:var(--muted);font-family:inherit;font-weight:800;font-size:12.5px;letter-spacing:.02em;padding:8px 12px;border-radius:999px;transition:.18s;white-space:nowrap}
@@ -180,12 +183,12 @@
       <span class="pill pb"><b>+1</b> Who goes through</span>
     </div>
     <div class="preview-banner" id="previewBanner">
-      Preview. The teams aren't known yet, so each tie below shows which earlier match feeds it (Winner of Match 73 and so on). When this round is set I'll swap in the real teams and set the proper lock. Nothing here counts unless you want it to.
+      The Round of 16 is set. Get all 8 predictions in before the first tie kicks off — everything locks at once when Canada v Morocco starts (around 6pm UK today). After that the page is read-only and you just follow the leaderboard.
     </div>
   <div class="stage-switch" aria-label="Tournament stage">
     <a href="index.html?stage=group">Groups</a>
     <a href="r32.html">R32</a>
-    <a href="r16.html" style="display:none" class="on">R16</a>
+    <a href="r16.html" class="on">R16</a>
     <a href="qf.html" style="display:none">QF</a>
     <a href="sf.html" style="display:none">SF</a>
     <a href="final.html" style="display:none">Final</a>
@@ -196,6 +199,9 @@
     <button data-tab="predict" class="on">Predict</button>
     <button data-tab="leaderboard">Leaderboard</button>
     <button data-tab="organiser">Results</button>
+    <a class="tablink" href="yesterday.html">Yesterday</a>
+    <a class="tablink" href="today.html">Today's picks</a>
+    <a class="tablink" href="predictions.html?stage=R16">Everyone's picks</a>
   </nav>
 
   <!-- PREDICT -->
@@ -265,10 +271,9 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyr6wUiySfXwM9mvkMGG
 
 const PLAYERS = ["Scott", "Vickie", "Isobel", "Joseph", "Nat", "Dave E", "Maureen", "Sean", "Jen", "Derek", "Dave W", "Jacob", "Esme", "Dave B", "Claire", "Olivia", "Josh"];
 
-// Predictions lock at the first Round of 16 kick-off. Placeholder until the
-// exact slot is confirmed when the groups finish — it just needs to be in the
-// future so the preview stays open for testing.
-const DEADLINE_UTC = "2026-07-04T16:00:00Z";
+// Predictions lock at the first Round of 16 kick-off:
+// Canada v Morocco, 4 July 2026, 12:00 ET / 17:00 UTC / 18:00 UK.
+const DEADLINE_UTC = "2026-07-04T17:00:00Z";
 
 /* ---- stage identity: this is what keeps R32 points separate from GROUP,
         while the leaderboard still sums everything together ---- */
@@ -279,14 +284,14 @@ const STAGE = "R16";
    Each tie: [matchNo, [homeCode, homeLabel], [awayCode, awayLabel]]
    ============================================================ */
 const FIXTURES = [
-  [89, ["W74","Winner Match 74"], ["W77","Winner Match 77"]],
-  [90, ["W73","Winner Match 73"], ["W75","Winner Match 75"]],
-  [91, ["W76","Winner Match 76"], ["W78","Winner Match 78"]],
-  [92, ["W79","Winner Match 79"], ["W80","Winner Match 80"]],
-  [93, ["W83","Winner Match 83"], ["W84","Winner Match 84"]],
-  [94, ["W81","Winner Match 81"], ["W82","Winner Match 82"]],
-  [95, ["W86","Winner Match 86"], ["W88","Winner Match 88"]],
-  [96, ["W85","Winner Match 85"], ["W87","Winner Match 87"]]
+  [89, ["W74","Paraguay"],    ["W77","France"]],
+  [90, ["W73","Canada"],      ["W75","Morocco"]],
+  [91, ["W76","Brazil"],      ["W78","Norway"]],
+  [92, ["W79","Mexico"],      ["W80","England"]],
+  [93, ["W83","Portugal"],    ["W84","Spain"]],
+  [94, ["W81","USA"],         ["W82","Belgium"]],
+  [95, ["W86","Argentina"],   ["W88","Egypt"]],
+  [96, ["W85","Switzerland"], ["W87","Colombia"]]
 ];
 
 /* ============================================================
@@ -707,6 +712,7 @@ function init(){
   // Scores fire "input"; the goes-through dropdown fires "change".
   $("#fixtures").addEventListener("input",saveDraft);
   $("#fixtures").addEventListener("change",saveDraft);
+  // Organiser results: lock the "went through" pick to the winner of a decisive score.
   $("#resFixtures").addEventListener("input",()=>syncAllAdvance("data-radv","data-rm"));
   $("#resFixtures").addEventListener("change",()=>syncAllAdvance("data-radv","data-rm"));
   syncAllAdvance("data-adv","data-m");
