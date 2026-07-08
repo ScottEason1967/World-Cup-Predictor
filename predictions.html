@@ -147,7 +147,7 @@ const R32FX=[[73,"RSA","CAN"],[74,"GER","PAR"],[75,"NED","MAR"],[76,"BRA","JPN"]
 const R16FX=[[89,"PAR","FRA"],[90,"CAN","MAR"],[91,"BRA","NOR"],[92,"MEX","ENG"],[93,"POR","ESP"],[94,"USA","BEL"],[95,"ARG","EGY"],[96,"SUI","COL"]];
 const QFFX=[[97,"FRA","MAR"],[98,"ESP","BEL"],[99,"NOR","ENG"],[100,"ARG","SUI"]];
 const _sp=new URLSearchParams(location.search).get("stage");
-const STAGE=(_sp==="R32"||_sp==="R16"||_sp==="QF")?_sp:"GROUP";
+const STAGE=(_sp==="R32"||_sp==="R16"||_sp==="QF"||_sp==="GROUP")?_sp:"QF";
 document.getElementById(STAGE==="QF"?"swQF":STAGE==="R16"?"swR16":STAGE==="R32"?"swR":"swG").classList.add("on");
 const $=s=>document.querySelector(s);
 const byG={};FIXTURES.forEach(f=>{(byG[f[1]]=byG[f[1]]||[]).push(f)});
