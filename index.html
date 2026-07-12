@@ -610,19 +610,20 @@ async function renderLeaderboard(){
   const preds=rows.filter(r=>r.type==="prediction");
   const players={};
   preds.forEach(r=>{
-    const p=players[r.name]=players[r.name]||{name:r.name,total:0,exact:0,correct:0,scored:0};
+    const p=players[r.name]=players[r.name]||{name:r.name,total:0,exact:0,correct:0,scored:0,gErr:0};
     const res=results[r.stage]||{};
     Object.keys(r.data||{}).forEach(mn=>{
       if(res[mn]){
         const pr=r.data[mn], rs=res[mn];
         const pts=scoreOne(pr,rs);
-        p.total+=pts; p.scored++;
+        p.total+=pts; p.scored++; p.gErr+=Math.abs(pr[0]-rs[0])+Math.abs(pr[1]-rs[1]);
         if(pr[0]===rs[0]&&pr[1]===rs[1])p.exact++;
         else if(Math.sign(pr[0]-pr[1])===Math.sign(rs[0]-rs[1]))p.correct++;
       }
     });
   });
-  const list=Object.values(players).sort((a,b)=>b.total-a.total||b.exact-a.exact);
+  const list=Object.values(players).sort((a,b)=>b.total-a.total||b.exact-a.exact||b.correct-a.correct||a.gErr-b.gErr);
+  let _r=0; list.forEach((p,i)=>{ p._rank = (i>0 && list[i-1].total===p.total && list[i-1].exact===p.exact && list[i-1].correct===p.correct && list[i-1].gErr===p.gErr) ? _r : (_r=i+1); });
   const played=Object.keys(results[STAGE]||{}).length;
   $("#lbMeta").textContent = list.length
     ? played+" of "+MATCH_COUNT+" group games scored · "+list.length+" players in"
@@ -631,7 +632,7 @@ async function renderLeaderboard(){
   let html='<div class="lb-row head"><span>#</span><span>Player</span><span class="mini">Results</span><span class="mini exact">Exact</span><span>Points</span></div>';
   list.forEach((p,i)=>{
     html+=`<div class="lb-row">
-      <span class="rank">${i+1}</span>
+      <span class="rank">${p._rank}</span>
       <span class="who">${p.name}</span>
       <span class="mini"><b>${p.correct+p.exact}</b>correct</span>
       <span class="mini exact"><b>${p.exact}</b>spot on</span>
@@ -802,4 +803,4 @@ function init(){
 init();
 </script>
 </body>
-</html>
+</h

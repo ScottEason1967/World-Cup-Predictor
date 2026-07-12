@@ -529,21 +529,22 @@ async function renderLeaderboard(){
   const preds=rows.filter(r=>r.type==="prediction");
   const players={};
   preds.forEach(r=>{
-    const p=players[r.name]=players[r.name]||{name:r.name,total:0,scored:0,rEx:0,rRes:0,rThr:0};
+    const p=players[r.name]=players[r.name]||{name:r.name,total:0,scored:0,rEx:0,rRes:0,rThr:0,gEx:0,gRes:0,gErr:0};
     const res=results[r.stage]||{};
     const isR=r.stage===STAGE; // R32-only breakdown; total stays cumulative
     Object.keys(r.data||{}).forEach(mn=>{
       const pr=r.data[mn], rs=res[mn];
       if(rs){
         let pts=0;
-        if(pr[0]===rs[0] && pr[1]===rs[1]){ pts=3; if(isR)p.rEx++; }
-        else if(Math.sign(pr[0]-pr[1])===Math.sign(rs[0]-rs[1])){ pts=1; if(isR)p.rRes++; }
+        if(pr[0]===rs[0] && pr[1]===rs[1]){ pts=3; p.gEx++; if(isR)p.rEx++; }
+        else if(Math.sign(pr[0]-pr[1])===Math.sign(rs[0]-rs[1])){ pts=1; p.gRes++; if(isR)p.rRes++; }
         if(pr[2] && rs[2] && pr[2]===rs[2]){ pts+=1; if(isR)p.rThr++; }
-        p.total+=pts; p.scored++;
+        p.gErr+=Math.abs(pr[0]-rs[0])+Math.abs(pr[1]-rs[1]); p.total+=pts; p.scored++;
       }
     });
   });
-  const list=Object.values(players).sort((a,b)=>b.total-a.total||b.rEx-a.rEx);
+  const list=Object.values(players).sort((a,b)=>b.total-a.total||b.gEx-a.gEx||b.gRes-a.gRes||a.gErr-b.gErr);
+  let _r=0; list.forEach((p,i)=>{ p._rank = (i>0 && list[i-1].total===p.total && list[i-1].gEx===p.gEx && list[i-1].gRes===p.gRes && list[i-1].gErr===p.gErr) ? _r : (_r=i+1); });
   const playedR32=Object.keys(results[STAGE]||{}).length;
   $("#lbMeta").textContent = list.length
     ? "Round of 32: "+playedR32+" of "+MATCH_COUNT+" scored · breakdown is this round; Points is the running total incl. the group stage"
@@ -552,7 +553,7 @@ async function renderLeaderboard(){
   let html='<div class="lb-row head"><span>#</span><span>Player</span><span class="mini res">Result</span><span class="mini">Through</span><span class="mini exact">Spot on</span><span>Points</span></div>';
   list.forEach((p,i)=>{
     html+=`<div class="lb-row">
-      <span class="rank">${i+1}</span>
+      <span class="rank">${p._rank}</span>
       <span class="who">${p.name}</span>
       <span class="mini res"><b>${p.rRes}</b>result</span>
       <span class="mini"><b>${p.rThr}</b>through</span>
