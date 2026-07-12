@@ -180,14 +180,14 @@
       <span class="pill pb"><b>+1</b> Who goes through</span>
     </div>
     <div class="preview-banner" id="previewBanner">
-      Preview. The teams aren't known yet, so each tie below shows which earlier match feeds it (Winner of Match 73 and so on). When this round is set I'll swap in the real teams and set the proper lock. Nothing here counts unless you want it to.
+      The semi-finals are set. Get both predictions in before the first tie kicks off — everything locks at once when France v Spain starts (around 8pm UK on Tuesday 14 July). After that the page is read-only and you just follow the leaderboard.
     </div>
   <div class="stage-switch" aria-label="Tournament stage">
     <a href="index.html?stage=group">Groups</a>
     <a href="r32.html">R32</a>
     <a href="r16.html">R16</a>
     <a href="qf.html">QF</a>
-    <a href="sf.html" style="display:none" class="on">SF</a>
+    <a href="sf.html" class="on">SF</a>
     <a href="final.html" style="display:none">Final</a>
   </div>
   </header>
@@ -279,8 +279,8 @@ const STAGE = "SF";
    Each tie: [matchNo, [homeCode, homeLabel], [awayCode, awayLabel]]
    ============================================================ */
 const FIXTURES = [
-  [101, ["W97","Winner Match 97"], ["W98","Winner Match 98"]],
-  [102, ["W99","Winner Match 99"], ["W100","Winner Match 100"]]
+  [101, ["W97","France"],  ["W98","Spain"]],
+  [102, ["W99","England"], ["W100","Argentina"]]
 ];
 
 /* ============================================================
@@ -718,3 +718,4 @@ init();
 </script>
 </body>
 </html>
+                                                     

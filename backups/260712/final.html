@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>World Cup 2026 Predictor — Round of 16</title>
+<title>World Cup 2026 Predictor — Final</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -66,9 +66,6 @@
     font-weight:700;font-size:14px;padding:11px 8px;border-radius:10px;cursor:pointer;transition:.18s}
   nav.tabs button:hover{color:var(--ink)}
   nav.tabs button.on{background:var(--accent);color:#0b1220}
-  nav.tabs a.tablink{flex:1;display:flex;align-items:center;justify-content:center;text-decoration:none;
-    color:var(--muted);font-family:inherit;font-weight:700;font-size:14px;padding:11px 8px;border-radius:10px;transition:.18s}
-  nav.tabs a.tablink:hover{color:var(--ink)}
 
   .stage-switch{display:flex;flex-wrap:wrap;width:fit-content;max-width:100%;gap:4px;margin:18px 0 0;background:var(--panel-2);border:1px solid var(--line);border-radius:16px;padding:4px}
   .stage-switch a{text-decoration:none;color:var(--muted);font-family:inherit;font-weight:800;font-size:12.5px;letter-spacing:.02em;padding:8px 12px;border-radius:999px;transition:.18s;white-space:nowrap}
@@ -174,24 +171,24 @@
 <div class="wrap">
   <header>
     <p class="kicker">The Eason Family Sweepstake</p>
-    <h1>Round of <span class="yr">16</span></h1>
-    <p class="sub">Predict each tie's score at 90 minutes, then pick who goes through, in normal time, extra time or on penalties. Everything so far carries over, this just tops up the running total.</p>
+    <h1>The <span class="yr">Final</span></h1>
+    <p class="sub">Last two games. Predict the 90-minute score for the third-place play-off and the Final, then pick the winner of each, whether it's settled in normal time, extra time or on penalties. This is the last of it.</p>
     <div class="scoring">
       <span class="pill p3"><b>3</b> Exact 90-min score</span>
       <span class="pill p1"><b>1</b> Correct result only</span>
       <span class="pill p0"><b>0</b> Wrong</span>
-      <span class="pill pb"><b>+1</b> Who goes through</span>
+      <span class="pill pb"><b>+1</b> Who wins it</span>
     </div>
     <div class="preview-banner" id="previewBanner">
-      The Round of 16 is set. Get all 8 predictions in before the first tie kicks off — everything locks at once when Canada v Morocco starts (around 6pm UK today). After that the page is read-only and you just follow the leaderboard.
+      Preview. The teams aren't known yet, so each tie below shows which earlier match feeds it (Winner of Match 73 and so on). When this round is set I'll swap in the real teams and set the proper lock. Nothing here counts unless you want it to.
     </div>
   <div class="stage-switch" aria-label="Tournament stage">
     <a href="index.html?stage=group">Groups</a>
     <a href="r32.html">R32</a>
-    <a href="r16.html" class="on">R16</a>
+    <a href="r16.html">R16</a>
     <a href="qf.html">QF</a>
-    <a href="sf.html">SF</a>
-    <a href="final.html" style="display:none">Final</a>
+    <a href="sf.html" style="display:none">SF</a>
+    <a href="final.html" style="display:none" class="on">Final</a>
   </div>
   </header>
 
@@ -199,9 +196,6 @@
     <button data-tab="predict" class="on">Predict</button>
     <button data-tab="leaderboard">Leaderboard</button>
     <button data-tab="organiser">Results</button>
-    <a class="tablink" href="yesterday.html">Yesterday</a>
-    <a class="tablink" href="today.html">Today's picks</a>
-    <a class="tablink" href="predictions.html">Everyone's picks</a>
   </nav>
 
   <!-- PREDICT -->
@@ -211,7 +205,7 @@
       <label for="player">Who are you?</label>
       <select id="player"><option value="">— choose your name —</option></select>
       <input id="pin" type="password" inputmode="numeric" maxlength="4" placeholder="PIN" autocomplete="off" aria-label="Your 4-digit PIN">
-      <span class="progress" id="prog">0 of 8 predicted</span>
+      <span class="progress" id="prog">0 of 2 predicted</span>
       <span class="deadline" id="ddl"></span>
       <span class="note" id="pinHint" style="flex-basis:100%"></span>
     </div>
@@ -258,7 +252,7 @@
   </section>
 
   <footer>
-    <p><strong>Round of 16</strong> &middot; 4&ndash;7 July 2026 &middot; 8 ties &middot; matches 89&ndash;96.<br>
+    <p><strong>Third-place play-off &amp; Final</strong> &middot; 18&ndash;19 July 2026 &middot; matches 103&ndash;104.<br>
     Same sheet, same names and PINs as the group stage. The leaderboard adds these points on top of everyone's group totals automatically.</p>
   </footer>
 </div>
@@ -271,27 +265,22 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyr6wUiySfXwM9mvkMGG
 
 const PLAYERS = ["Scott", "Vickie", "Isobel", "Joseph", "Nat", "Dave E", "Maureen", "Sean", "Jen", "Derek", "Dave W", "Jacob", "Esme", "Dave B", "Claire", "Olivia", "Josh"];
 
-// Predictions lock at the first Round of 16 kick-off:
-// Canada v Morocco, 4 July 2026, 12:00 ET / 17:00 UTC / 18:00 UK.
-const DEADLINE_UTC = "2026-07-04T17:00:00Z";
+// Predictions lock at the first Final kick-off. Placeholder until the
+// exact slot is confirmed when the groups finish — it just needs to be in the
+// future so the preview stays open for testing.
+const DEADLINE_UTC = "2026-07-18T18:00:00Z";
 
 /* ---- stage identity: this is what keeps R32 points separate from GROUP,
         while the leaderboard still sums everything together ---- */
-const STAGE = "R16";
+const STAGE = "FINAL";
 
 /* ============================================================
-   ROUND OF 16  (official FIFA bracket)
+   FINAL  (official FIFA bracket)
    Each tie: [matchNo, [homeCode, homeLabel], [awayCode, awayLabel]]
    ============================================================ */
 const FIXTURES = [
-  [89, ["W74","Paraguay"],    ["W77","France"]],
-  [90, ["W73","Canada"],      ["W75","Morocco"]],
-  [91, ["W76","Brazil"],      ["W78","Norway"]],
-  [92, ["W79","Mexico"],      ["W80","England"]],
-  [93, ["W83","Portugal"],    ["W84","Spain"]],
-  [94, ["W81","USA"],         ["W82","Belgium"]],
-  [95, ["W86","Argentina"],   ["W88","Egypt"]],
-  [96, ["W85","Switzerland"], ["W87","Colombia"]]
+  [103, ["L101","Loser Match 101 (3rd place play-off)"], ["L102","Loser Match 102 (3rd place play-off)"]],
+  [104, ["W101","Winner Match 101 (Final)"],            ["W102","Winner Match 102 (Final)"]]
 ];
 
 /* ============================================================
@@ -321,7 +310,7 @@ function slotSide(slot, away){
 }
 
 function advOptions(home, away, sel){
-  return `<option value="">— who goes through? —</option>
+  return `<option value="">— who wins? —</option>
     <option value="H"${sel==="H"?" selected":""}>${home[1]}</option>
     <option value="A"${sel==="A"?" selected":""}>${away[1]}</option>`;
 }
@@ -364,7 +353,7 @@ function buildFixtures(){
          ${slotSide(away,true)}
        </div>
        <div class="ko-adv">
-         <label for="adv-${no}">Goes through</label>
+         <label for="adv-${no}">Winner</label>
          <select id="adv-${no}" data-adv="${no}">${advOptions(home,away,"")}</select>
          <span class="bonus">+1 if right</span>
        </div>`;
@@ -455,8 +444,8 @@ async function submit(){
   const preds=collectPredictions();
   const pin=($("#pin").value||"").trim();
   if(!name){ return setStatus("predStatus","err","Pick your name first."); }
-  if(Object.keys(preds).length!==MATCH_COUNT){ return setStatus("predStatus","err","Each tie needs a score and a pick for who goes through. "+Object.keys(preds).length+" of "+MATCH_COUNT+" done."); }
-  if(isLocked()){ return setStatus("predStatus","err","Predictions are locked — the Round of 16 has kicked off."); }
+  if(Object.keys(preds).length!==MATCH_COUNT){ return setStatus("predStatus","err","Each tie needs a score and a pick for who wins. "+Object.keys(preds).length+" of "+MATCH_COUNT+" done."); }
+  if(isLocked()){ return setStatus("predStatus","err","Predictions are locked — the Final has kicked off."); }
   const claimed=CLAIMED.includes(name);
   if(!/^\d{4}$/.test(pin)){
     return setStatus("predStatus","err", claimed
@@ -472,7 +461,7 @@ async function submit(){
       if(!CLAIMED.includes(name)) CLAIMED.push(name);
       updatePinHint();
       setStatus("predStatus","ok", claimed
-        ? ("Done — "+name+"'s Round of 16 predictions are updated.")
+        ? ("Done — "+name+"'s Final predictions are updated.")
         : ("Done — "+name+"'s predictions are saved and your PIN is set. Remember it: you'll need it to change them before kick-off."));
     }else if(r&&r.error==="bad_pin"){
       setStatus("predStatus","err","That PIN doesn't match the one set for "+name+". Try again, or ask Scott to reset it.");
@@ -538,16 +527,16 @@ async function renderLeaderboard(){
   const list=Object.values(players).sort((a,b)=>b.total-a.total||b.rEx-a.rEx);
   const playedR32=Object.keys(results[STAGE]||{}).length;
   $("#lbMeta").textContent = list.length
-    ? "Round of 16: "+playedR32+" of "+MATCH_COUNT+" scored · running total includes the group stage"
+    ? "Final: "+playedR32+" of "+MATCH_COUNT+" scored · running total includes the group stage"
     : "";
   if(!list.length){ tbl.innerHTML='<div class="lb-empty">No predictions submitted yet.</div>'; return; }
-  let html='<div class="lb-row head"><span>#</span><span>Player</span><span class="mini res">Result</span><span class="mini">Through</span><span class="mini exact">Spot on</span><span>Points</span></div>';
+  let html='<div class="lb-row head"><span>#</span><span>Player</span><span class="mini res">Result</span><span class="mini">Winner</span><span class="mini exact">Spot on</span><span>Points</span></div>';
   list.forEach((p,i)=>{
     html+=`<div class="lb-row">
       <span class="rank">${i+1}</span>
       <span class="who">${p.name}</span>
       <span class="mini res"><b>${p.rRes}</b>result</span>
-      <span class="mini"><b>${p.rThr}</b>through</span>
+      <span class="mini"><b>${p.rThr}</b>winner</span>
       <span class="mini exact"><b>${p.rEx}</b>spot on</span>
       <span class="pts">${p.total}</span></div>`;
   });
@@ -574,7 +563,7 @@ function buildResultsForm(){
          ${slotSide(away,true)}
        </div>
        <div class="ko-adv">
-         <label for="radv-${no}">Went through</label>
+         <label for="radv-${no}">Winner</label>
          <select id="radv-${no}" data-radv="${no}">${advOptions(home,away,"")}</select>
        </div>`;
     host.appendChild(card);
@@ -621,7 +610,7 @@ async function loadResults(){
     const rows=dedupe(await fetchAll());
     const r=rows.find(x=>x.stage===STAGE && x.type==="result");
     fillResults(r?r.data:{});
-    setStatus("resStatus","ok",r?"Loaded saved results.":"No Round of 16 results saved yet.");
+    setStatus("resStatus","ok",r?"Loaded saved results.":"No Final results saved yet.");
   }catch(e){ setStatus("resStatus","err","Couldn't reach the sheet."); }
 }
 async function importCode(){
@@ -676,7 +665,7 @@ function initDeadline(){
   $("#ddl").innerHTML = "Locks at first kick-off<br><b>"+deadline.toLocaleString("en-GB",opts)+" UK</b>";
   if(isLocked()){
     $("#lockBanner").style.display="block";
-    $("#lockBanner").textContent="Predictions are locked — the Round of 16 has kicked off. You can still watch the leaderboard.";
+    $("#lockBanner").textContent="Predictions are locked — the Final has kicked off. You can still watch the leaderboard.";
     document.querySelectorAll('#fixtures input, #fixtures select').forEach(i=>i.disabled=true);
     $("#submitBtn").disabled=true;
   }
@@ -712,7 +701,6 @@ function init(){
   // Scores fire "input"; the goes-through dropdown fires "change".
   $("#fixtures").addEventListener("input",saveDraft);
   $("#fixtures").addEventListener("change",saveDraft);
-  // Organiser results: lock the "went through" pick to the winner of a decisive score.
   $("#resFixtures").addEventListener("input",()=>syncAllAdvance("data-radv","data-rm"));
   $("#resFixtures").addEventListener("change",()=>syncAllAdvance("data-radv","data-rm"));
   syncAllAdvance("data-adv","data-m");
