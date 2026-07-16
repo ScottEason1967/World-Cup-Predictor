@@ -183,15 +183,15 @@
       <span class="pill pb"><b>+1</b> Who wins it</span>
     </div>
     <div class="preview-banner" id="previewBanner">
-      Preview. The teams aren't known yet, so each tie below shows which earlier match feeds it (Winner of Match 73 and so on). When this round is set I'll swap in the real teams and set the proper lock. Nothing here counts unless you want it to.
+      The last two are set. Saturday it's France v England for third place, then Sunday it's the Final: Spain v Argentina. Get both scores in before Saturday's kick-off — everything locks at once around 10pm UK on Saturday 18 July. After that the page is read-only and you just watch the leaderboard to the end.
     </div>
   <div class="stage-switch" aria-label="Tournament stage">
     <a href="index.html?stage=group">Groups</a>
     <a href="r32.html">R32</a>
     <a href="r16.html">R16</a>
     <a href="qf.html">QF</a>
-    <a href="sf.html" style="display:none">SF</a>
-    <a href="final.html" style="display:none" class="on">Final</a>
+    <a href="sf.html">SF</a>
+    <a href="final.html" class="on">Final</a>
   </div>
   </header>
 
@@ -271,10 +271,10 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyr6wUiySfXwM9mvkMGG
 
 const PLAYERS = ["Scott", "Vickie", "Isobel", "Joseph", "Nat", "Dave E", "Maureen", "Sean", "Jen", "Derek", "Dave W", "Jacob", "Esme", "Dave B", "Claire", "Olivia", "Josh"];
 
-// Predictions lock at the first Final kick-off. Placeholder until the
-// exact slot is confirmed when the groups finish — it just needs to be in the
-// future so the preview stays open for testing.
-const DEADLINE_UTC = "2026-07-18T18:00:00Z";
+// Predictions lock at the first of the two kick-offs: the third-place play-off,
+// France v England, Saturday 18 July 2026, 5pm ET / 10pm UK. Both games lock
+// together at that moment, the same way every other stage page works.
+const DEADLINE_UTC = "2026-07-18T21:00:00Z";
 
 /* ---- stage identity: this is what keeps R32 points separate from GROUP,
         while the leaderboard still sums everything together ---- */
@@ -285,8 +285,8 @@ const STAGE = "FINAL";
    Each tie: [matchNo, [homeCode, homeLabel], [awayCode, awayLabel]]
    ============================================================ */
 const FIXTURES = [
-  [103, ["L101","Loser Match 101 (3rd place play-off)"], ["L102","Loser Match 102 (3rd place play-off)"]],
-  [104, ["W101","Winner Match 101 (Final)"],            ["W102","Winner Match 102 (Final)"]]
+  [103, ["L101","France"], ["L102","England"]],
+  [104, ["W101","Spain"],  ["W102","Argentina"]]
 ];
 
 /* ============================================================
