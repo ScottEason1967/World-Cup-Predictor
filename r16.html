@@ -74,6 +74,8 @@
   .stage-switch a{text-decoration:none;color:var(--muted);font-family:inherit;font-weight:800;font-size:12.5px;letter-spacing:.02em;padding:8px 12px;border-radius:999px;transition:.18s;white-space:nowrap}
   .stage-switch a:hover{color:var(--ink)}
   .stage-switch a.on{background:var(--gold);color:#0b1220}
+  .stage-switch a.champ{color:var(--gold)}
+  .stage-switch a.champ:hover{color:#fff6df}
   .view{display:none;animation:rise .35s ease both}
   .view.on{display:block}
   @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
@@ -192,6 +194,7 @@
     <a href="qf.html">QF</a>
     <a href="sf.html">SF</a>
     <a href="final.html">Final</a>
+    <a href="champion.html" class="champ">Champion</a>
   </div>
   </header>
 
@@ -665,7 +668,7 @@ function initTabs(){
   const h=(location.hash||"").slice(1);
   if(h && document.querySelector('nav.tabs button[data-tab="'+h+'"]')) activateTab(h);
   // Carry the active tab across the round switcher so toggling never resets your tab.
-  document.querySelectorAll(".stage-switch a").forEach(a=>{
+  document.querySelectorAll(".stage-switch a:not(.champ)").forEach(a=>{
     a.addEventListener("click",e=>{
       e.preventDefault();
       location.href=a.getAttribute("href").split("#")[0]+(location.hash||"");

@@ -57,6 +57,9 @@
   .cd b{display:block;font-family:"Anton",sans-serif;font-weight:400;font-size:30px;line-height:1;letter-spacing:.01em}
   .cd span{display:block;margin-top:6px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
   .waiting{display:inline-flex;align-items:center;gap:9px;color:var(--muted);font-size:14px}
+  .back{margin-top:6px;color:var(--muted);text-decoration:none;font-size:13.5px;
+    border-bottom:1px solid var(--line-strong);padding-bottom:2px;transition:.18s}
+  .back:hover{color:var(--gold);border-color:var(--gold)}
   .pulse{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 1.6s ease-in-out infinite}
   @keyframes pulse{0%,100%{opacity:.35;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}
 
@@ -177,6 +180,7 @@
     <p class="sub" id="lockSub">This page opens by itself the moment the Final result goes on the sheet. Nothing to click.</p>
     <div class="cdrow" id="cd"></div>
     <div class="waiting"><span class="pulse"></span><span id="lockNote">Checking the sheet every 20 seconds</span></div>
+    <a class="back" href="final.html">Back to the predictor</a>
   </div>
 
   <!-- ============ REVEAL ============ -->

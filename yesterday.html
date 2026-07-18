@@ -17,6 +17,8 @@ h1 .yr{color:var(--accent)}
 .nav a{flex:1;min-width:84px;text-align:center;text-decoration:none;color:var(--muted);font-family:inherit;font-weight:700;font-size:14px;padding:11px 8px;border-radius:10px;transition:.18s}
 .nav a:hover{color:var(--ink)}
 .nav a.on{background:var(--accent);color:#0b1220}
+.nav a.champ{color:var(--gold)}
+.nav a.champ:hover{color:#fff6df}
 .daybar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:baseline;margin:22px 2px 8px}
 .daybar h2{font-family:"Anton";font-weight:400;font-size:clamp(22px,4.5vw,32px);margin:0;text-transform:uppercase;letter-spacing:.01em}
 .daybar .meta{color:var(--muted);font-size:13.5px}
@@ -72,6 +74,7 @@ footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);color:v
   <a href="yesterday.html" class="on">Yesterday</a>
   <a href="today.html">Today's picks</a>
   <a href="predictions.html">Everyone's picks</a>
+  <a href="champion.html" class="champ">Champion</a>
 </nav>
 <div class="daybar"><h2 id="dayTitle">Loading…</h2><span class="meta" id="dayMeta"></span></div>
 <div class="daynote" id="dayNote" style="display:none"></div>
