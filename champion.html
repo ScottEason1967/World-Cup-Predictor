@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World Cup 2026 Predictor — Champion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b1220;
+    --panel:#121d31;
+    --panel-2:#0e1726;
+    --ink:#f4f1e8;
+    --muted:#9fb0c6;
+    --accent:#ff4d3d;
+    --gold:#f4b942;
+    --green:#36c275;
+    --blue:#5b8def;
+    --purple:#a06bff;
+    --line:rgba(255,255,255,.09);
+    --line-strong:rgba(255,255,255,.16);
+    --shadow:0 18px 40px -20px rgba(0,0,0,.7);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(255,77,61,.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 10%, rgba(244,185,66,.08), transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Hanken Grotesk",system-ui,sans-serif;
+    font-size:16px;line-height:1.5;min-height:100vh;
+    overflow-x:hidden;
+  }
+
+  /* ---------- fireworks canvas ---------- */
+  #fw{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0;transition:opacity 1.4s ease}
+  #fw.on{opacity:1}
+
+  .wrap{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:0 18px 90px}
+
+  /* ---------- locked state ---------- */
+  #locked{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:22px;padding:40px 0}
+  .seal{width:96px;height:96px;border-radius:50%;display:grid;place-items:center;
+    background:linear-gradient(160deg,rgba(244,185,66,.18),rgba(244,185,66,.04));
+    border:1px solid rgba(244,185,66,.45);box-shadow:0 0 0 10px rgba(244,185,66,.05),var(--shadow)}
+  .seal svg{width:40px;height:40px;stroke:var(--gold);fill:none;stroke-width:1.8}
+  #locked h1{font-family:"Anton",sans-serif;font-weight:400;letter-spacing:.02em;
+    font-size:clamp(28px,6vw,52px);line-height:1.02;margin:0;text-transform:uppercase}
+  #locked .sub{color:var(--muted);max-width:46ch;margin:0;font-size:clamp(15px,2.2vw,18px)}
+  .cdrow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:4px}
+  .cd{min-width:78px;padding:12px 14px;border-radius:14px;background:var(--panel);
+    border:1px solid var(--line);box-shadow:var(--shadow)}
+  .cd b{display:block;font-family:"Anton",sans-serif;font-weight:400;font-size:30px;line-height:1;letter-spacing:.01em}
+  .cd span{display:block;margin-top:6px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .waiting{display:inline-flex;align-items:center;gap:9px;color:var(--muted);font-size:14px}
+  .pulse{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 1.6s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.35;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}
+
+  /* ---------- reveal ---------- */
+  #reveal{display:none}
+  #reveal.show{display:block}
+  .rise{opacity:0;transform:translateY(18px);animation:rise .9s cubic-bezier(.2,.7,.3,1) forwards}
+  @keyframes rise{to{opacity:1;transform:none}}
+
+  /* ---------- hero ---------- */
+  .hero{text-align:center;padding:64px 0 20px}
+  .eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:12px;letter-spacing:.24em;
+    text-transform:uppercase;color:var(--gold);border:1px solid rgba(244,185,66,.35);
+    background:rgba(244,185,66,.08);padding:8px 16px;border-radius:999px}
+  .trophy{width:132px;height:132px;margin:26px auto 6px;border-radius:50%;overflow:hidden;
+    border:2px solid rgba(244,185,66,.55);
+    box-shadow:0 0 0 12px rgba(244,185,66,.06),0 24px 60px -24px rgba(244,185,66,.55)}
+  .trophy img{width:100%;height:100%;object-fit:cover;display:block}
+  .winner{font-family:"Anton",sans-serif;font-weight:400;text-transform:uppercase;
+    font-size:clamp(56px,15vw,124px);line-height:.92;letter-spacing:.005em;margin:14px 0 2px;
+    background:linear-gradient(180deg,#fff6df 0%,var(--gold) 55%,#c98f22 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 10px 30px rgba(244,185,66,.28))}
+  .crown{font-size:clamp(15px,2.6vw,20px);color:var(--ink);margin:0 0 4px;font-weight:600}
+  .crown .thin{color:var(--muted);font-weight:400}
+  .ptsline{margin:22px auto 0;display:inline-flex;align-items:baseline;gap:12px;
+    padding:14px 26px;border-radius:16px;background:var(--panel);border:1px solid var(--line-strong);box-shadow:var(--shadow)}
+  .ptsline b{font-family:"Anton",sans-serif;font-weight:400;font-size:clamp(34px,7vw,52px);line-height:1;color:var(--gold)}
+  .ptsline span{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+  .margin{margin:14px 0 0;color:var(--muted);font-size:15px}
+
+  /* ---------- sections ---------- */
+  h2.sec{font-family:"Anton",sans-serif;font-weight:400;text-transform:uppercase;letter-spacing:.03em;
+    font-size:clamp(19px,3.4vw,26px);margin:52px 0 4px}
+  .sechint{color:var(--muted);font-size:14px;margin:0 0 18px}
+
+  /* ---------- podium ---------- */
+  .podium{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:end;margin-bottom:8px}
+  .pod{border-radius:16px;background:var(--panel);border:1px solid var(--line);padding:18px 14px;text-align:center;box-shadow:var(--shadow)}
+  .pod.p1{background:linear-gradient(170deg,rgba(244,185,66,.16),rgba(244,185,66,.03));border-color:rgba(244,185,66,.45);padding-top:26px;padding-bottom:26px}
+  .pod.p2{border-color:rgba(200,214,232,.3)}
+  .pod.p3{border-color:rgba(205,127,50,.35)}
+  .pod .pos{font-family:"Anton",sans-serif;font-weight:400;font-size:26px;line-height:1;opacity:.85}
+  .pod.p1 .pos{color:var(--gold)}
+  .pod.p2 .pos{color:#cdd8e6}
+  .pod.p3 .pos{color:#cd7f32}
+  .pod .nm{font-weight:700;font-size:17px;margin-top:9px;word-break:break-word}
+  .pod .pt{font-family:"Anton",sans-serif;font-weight:400;font-size:27px;margin-top:5px}
+  .pod.p1 .pt{color:var(--gold)}
+
+  /* ---------- table ---------- */
+  .board{border-radius:16px;overflow:hidden;border:1px solid var(--line);background:var(--panel);box-shadow:var(--shadow)}
+  .row{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;
+    padding:13px 16px;border-top:1px solid var(--line)}
+  .row:first-child{border-top:0}
+  .row.win{background:linear-gradient(90deg,rgba(244,185,66,.15),rgba(244,185,66,.02))}
+  .row .r{font-family:"Anton",sans-serif;font-weight:400;font-size:17px;color:var(--muted);text-align:center}
+  .row.win .r{color:var(--gold)}
+  .row .n{font-weight:600;font-size:16px}
+  .row.win .n{color:var(--gold);font-weight:700}
+  .row .p{font-family:"Anton",sans-serif;font-weight:400;font-size:20px;letter-spacing:.01em}
+  .row.win .p{color:var(--gold)}
+  .row .p small{font-family:"Hanken Grotesk",sans-serif;font-weight:500;font-size:11px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-left:7px}
+
+  /* ---------- stats ---------- */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+  .stat{border-radius:14px;background:var(--panel);border:1px solid var(--line);padding:16px;box-shadow:var(--shadow)}
+  .stat b{display:block;font-family:"Anton",sans-serif;font-weight:400;font-size:30px;line-height:1.05;color:var(--gold)}
+  .stat b.sm{font-size:20px;line-height:1.25}
+  .stat span{display:block;margin-top:8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .stat em{display:block;margin-top:5px;font-style:normal;font-size:13px;color:var(--muted)}
+
+  /* ---------- rounds ---------- */
+  .rounds{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:10px}
+  .rnd{border-radius:13px;background:var(--panel-2);border:1px solid var(--line);padding:14px 12px;text-align:center}
+  .rnd.best{border-color:rgba(244,185,66,.5);background:linear-gradient(170deg,rgba(244,185,66,.13),transparent)}
+  .rnd b{display:block;font-family:"Anton",sans-serif;font-weight:400;font-size:23px}
+  .rnd.best b{color:var(--gold)}
+  .rnd span{display:block;margin-top:5px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .rnd em{display:block;margin-top:3px;font-style:normal;font-size:11px;color:var(--muted);opacity:.75}
+
+  .foot{margin-top:54px;padding-top:22px;border-top:1px solid var(--line);
+    color:var(--muted);font-size:13px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+  .foot a{color:var(--gold);text-decoration:none}
+  .foot a:hover{text-decoration:underline}
+  .err{margin:40px auto;max-width:520px;text-align:center;color:var(--muted);
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px}
+
+  @media (max-width:560px){
+    .podium{grid-template-columns:1fr;align-items:stretch}
+    .pod.p1{padding:20px 14px}
+    .row{grid-template-columns:36px 1fr auto;gap:9px;padding:12px 13px}
+    .hero{padding-top:44px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .rise{animation:none;opacity:1;transform:none}
+    .pulse{animation:none}
+  }
+</style>
+</head>
+<body>
+
+<canvas id="fw"></canvas>
+
+<div class="wrap">
+
+  <!-- ============ LOCKED ============ -->
+  <div id="locked">
+    <div class="seal">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="10.5" width="16" height="10" rx="2.2"></rect>
+        <path d="M8 10.5V7.2a4 4 0 0 1 8 0v3.3"></path>
+        <circle cx="12" cy="15.4" r="1.15" fill="currentColor" stroke="none" style="fill:#f4b942"></circle>
+      </svg>
+    </div>
+    <h1 id="lockTitle">The final standings are sealed</h1>
+    <p class="sub" id="lockSub">This page opens by itself the moment the Final result goes on the sheet. Nothing to click.</p>
+    <div class="cdrow" id="cd"></div>
+    <div class="waiting"><span class="pulse"></span><span id="lockNote">Checking the sheet every 20 seconds</span></div>
+  </div>
+
+  <!-- ============ REVEAL ============ -->
+  <div id="reveal">
+    <div class="hero">
+      <div class="eyebrow rise" style="animation-delay:.05s">FIFA World Cup 2026 &middot; Family Predictor</div>
+      <div class="trophy rise" style="animation-delay:.15s"><img src="images/trophy.jpg" alt="World Cup trophy"></div>
+      <p class="crown rise" style="animation-delay:.28s">Champion <span class="thin">of 104 matches</span></p>
+      <h1 class="winner rise" id="winName" style="animation-delay:.34s">&nbsp;</h1>
+      <div class="ptsline rise" style="animation-delay:.5s"><b id="winPts">0</b><span>points</span></div>
+      <p class="margin rise" id="winMargin" style="animation-delay:.62s"></p>
+    </div>
+
+    <h2 class="sec rise" style="animation-delay:.7s">The podium</h2>
+    <p class="sechint rise" style="animation-delay:.72s">Final top three after the Final.</p>
+    <div class="podium rise" id="podium" style="animation-delay:.76s"></div>
+
+    <h2 class="sec rise" style="animation-delay:.82s">Winner's tournament</h2>
+    <p class="sechint rise" style="animation-delay:.84s" id="statHint"></p>
+    <div class="stats rise" id="stats" style="animation-delay:.88s"></div>
+
+    <h2 class="sec rise" style="animation-delay:.94s">Round by round</h2>
+    <p class="sechint rise" style="animation-delay:.96s" id="roundHint"></p>
+    <div class="rounds rise" id="rounds" style="animation-delay:1s"></div>
+
+    <h2 class="sec rise" style="animation-delay:1.06s">Final standings</h2>
+    <p class="sechint rise" style="animation-delay:1.08s">All sixteen, every round counted.</p>
+    <div class="board rise" id="board" style="animation-delay:1.12s"></div>
+
+    <div class="foot rise" style="animation-delay:1.2s">
+      <span>3 points an exact score &middot; 1 a correct result &middot; 1 bonus for calling who goes through</span>
+      <a href="index.html?stage=group">Back to the predictor</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbyr6wUiySfXwM9mvkMGGqmcDqZe5iu3nZvO7Wcu9iVfCYi0w8pmq0YMXdd2w1K58ian_g/exec";
+const FINAL_KO = Date.parse("2026-07-19T19:00:00Z");   // Spain v Argentina kick-off
+const $=s=>document.querySelector(s);
+
+/* ---------- data plumbing (same rules as the other pages) ---------- */
+function jsonp(p){
+  return new Promise((res,rej)=>{
+    const cb="cb_"+Math.random().toString(36).slice(2);
+    const s=document.createElement("script");
+    const q=new URLSearchParams(Object.assign({},p,{callback:cb,t:Date.now()}));
+    let done=false;
+    window[cb]=d=>{done=true;res(d);s.remove();delete window[cb];};
+    s.onerror=()=>{if(!done){rej(new Error("net"));s.remove();}};
+    s.src=SCRIPT_URL+"?"+q;
+    document.body.appendChild(s);
+    setTimeout(()=>{if(!done)rej(new Error("timeout"));},15000);
+  });
+}
+function dedupe(rows){
+  const m={};
+  rows.forEach(r=>{
+    const k=r.stage+"|"+r.name+"|"+(r.type||"prediction");
+    if(!m[k]||new Date(r.ts)>new Date(m[k].ts))m[k]=r;
+  });
+  return Object.values(m);
+}
+const sgn=(x,y)=>(x>y)-(x<y);
+function scoreOne(p,r){
+  if(!p||!r)return 0;
+  let pts=0;
+  if(p[0]===r[0]&&p[1]===r[1])pts=3;
+  else if(sgn(p[0],p[1])===sgn(r[0],r[1]))pts=1;
+  if(p[2]&&r[2]&&p[2]===r[2])pts+=1;
+  return pts;
+}
+function roundOf(n){
+  n=+n;
+  if(n<=72)return"GROUP";
+  if(n<=88)return"R32";
+  if(n<=96)return"R16";
+  if(n<=100)return"QF";
+  if(n<=102)return"SF";
+  return"FINAL";
+}
+const ROUND_LABEL={GROUP:"Group stage",R32:"Round of 32",R16:"Round of 16",QF:"Quarter-finals",SF:"Semi-finals",FINAL:"Final two"};
+
+/* ---------- countdown while locked ---------- */
+function tickCountdown(){
+  const box=$("#cd");
+  const diff=FINAL_KO-Date.now();
+  if(diff<=0){
+    box.innerHTML="";
+    $("#lockSub").textContent="The Final is under way. This page opens the moment the result is confirmed and posted.";
+    return;
+  }
+  const s=Math.floor(diff/1000),d=Math.floor(s/86400),h=Math.floor(s%86400/3600),
+        m=Math.floor(s%3600/60),sec=s%60;
+  const cell=(v,l)=>`<div class="cd"><b>${String(v).padStart(2,"0")}</b><span>${l}</span></div>`;
+  box.innerHTML=(d>0?cell(d,d===1?"day":"days"):"")+cell(h,"hrs")+cell(m,"min")+cell(sec,"sec");
+}
+
+/* ---------- the reveal ---------- */
+function buildReveal(PREDS,RESULTS){
+  const totals={};
+  Object.keys(PREDS).forEach(name=>{
+    totals[name]=Object.keys(RESULTS).reduce((t,k)=>t+scoreOne(PREDS[name][k],RESULTS[k]),0);
+  });
+  const board=Object.keys(totals).map(n=>({name:n,pts:totals[n]})).sort((a,b)=>b.pts-a.pts||a.name.localeCompare(b.name));
+  const champ=board[0], runner=board[1];
+  const P=PREDS[champ.name]||{};
+
+  /* hero */
+  $("#winName").textContent=champ.name;
+  const gap=runner?champ.pts-runner.pts:0;
+  $("#winMargin").textContent=runner
+    ? (gap>0 ? `${gap} point${gap===1?"":"s"} clear of ${runner.name}.` : `Level on points with ${runner.name} at the top.`)
+    : "";
+
+  /* count the number up */
+  const el=$("#winPts"),target=champ.pts,t0=performance.now(),DUR=1500;
+  el.textContent=target;                                  // correct even if frames never run
+  requestAnimationFrame(function step(now){
+    const k=Math.min(1,(now-t0)/DUR), e=1-Math.pow(1-k,3);
+    el.textContent=Math.round(target*e);
+    if(k<1)requestAnimationFrame(step);else el.textContent=target;
+  });
+  setTimeout(()=>{el.textContent=target;},DUR+400);       // belt and braces
+
+  /* podium */
+  $("#podium").innerHTML=board.slice(0,3).map((p,i)=>
+    `<div class="pod p${i+1}"><div class="pos">${["1st","2nd","3rd"][i]}</div>
+       <div class="nm">${p.name}</div><div class="pt">${p.pts}</div></div>`).join("");
+
+  /* winner stats */
+  const nos=Object.keys(RESULTS).map(Number).sort((a,b)=>a-b);
+  let exact=0,result=0,bonus=0,blank=0;
+  nos.forEach(n=>{
+    const p=P[n],r=RESULTS[n];
+    if(!p||!r){blank++;return;}
+    if(p[0]===r[0]&&p[1]===r[1])exact++;
+    else if(sgn(p[0],p[1])===sgn(r[0],r[1]))result++;
+    else blank++;
+    if(p[2]&&r[2]&&p[2]===r[2])bonus++;
+  });
+
+  /* when did the winner go top and stay there */
+  const run={};Object.keys(PREDS).forEach(n=>run[n]=0);
+  let lastHeaded=null;
+  nos.forEach(n=>{
+    Object.keys(PREDS).forEach(name=>{run[name]+=scoreOne(PREDS[name][n],RESULTS[n]);});
+    const mine=run[champ.name];
+    const soleTop=Object.keys(run).every(name=>name===champ.name||run[name]<mine);
+    if(!soleTop)lastHeaded=n;
+  });
+  const ledFrom=lastHeaded===null?nos[0]:(nos[nos.indexOf(lastHeaded)+1]||null);
+
+  /* per round */
+  const perRound={};
+  nos.forEach(n=>{
+    const R=roundOf(n);
+    perRound[R]=perRound[R]||{pts:0,games:0};
+    perRound[R].pts+=scoreOne(P[n],RESULTS[n]);
+    perRound[R].games++;
+  });
+  const order=["GROUP","R32","R16","QF","SF","FINAL"].filter(r=>perRound[r]);
+  // Best return per game, but only across rounds long enough for the average to mean
+  // something. Over two games one exact score swamps everything, so a 2-game round
+  // would win this every time and tell you nothing.
+  let bestRound=null,bestAvg=-1;
+  order.filter(r=>perRound[r].games>=4).forEach(r=>{
+    const a=perRound[r].pts/perRound[r].games;
+    if(a>bestAvg){bestAvg=a;bestRound=r;}
+  });
+
+  const called=exact+result;
+  const pc=nos.length?Math.round(called/nos.length*100):0;
+
+  $("#statHint").textContent=`How ${champ.name} built it across ${nos.length} matches.`;
+  $("#stats").innerHTML=[
+    ["<b>"+exact+"</b>","Exact scores","3 points each"],
+    ["<b>"+result+"</b>","Right result","1 point each"],
+    ["<b>"+bonus+"</b>","Through-bonuses","Called who advanced"],
+    ["<b>"+called+"</b>","Matches called","<em>"+pc+"% of the tournament</em>"],
+    ["<b>"+gap+"</b>","Winning margin","Points clear"],
+    ledFrom?["<b class='sm'>Match "+ledFrom+"</b>","Top from","Never headed after"]:null
+  ].filter(Boolean).map(([b,s,e])=>
+    `<div class="stat">${b}<span>${s}</span>${e.startsWith("<em>")?e:"<em>"+e+"</em>"}</div>`).join("");
+
+  $("#roundHint").textContent=bestRound
+    ? `Best return: ${bestAvg.toFixed(2)} points a game in the ${ROUND_LABEL[bestRound].toLowerCase()}.`
+    : "";
+  $("#rounds").innerHTML=order.map(r=>
+    `<div class="rnd${r===bestRound?" best":""}"><b>${perRound[r].pts}</b>
+       <span>${ROUND_LABEL[r]}</span><em>${perRound[r].games} game${perRound[r].games===1?"":"s"}</em></div>`).join("");
+
+  /* full board */
+  $("#board").innerHTML=board.map((p,i)=>
+    `<div class="row${i===0?" win":""}"><div class="r">${i+1}</div><div class="n">${p.name}</div>
+       <div class="p">${p.pts}<small>pts</small></div></div>`).join("");
+
+  $("#locked").style.display="none";
+  $("#reveal").classList.add("show");
+  document.title="Champion: "+champ.name+" — World Cup 2026 Predictor";
+  startFireworks();
+}
+
+/* ---------- poll the sheet until match 104 lands ---------- */
+let polling=false;
+async function check(){
+  if(polling)return;
+  polling=true;
+  try{
+    const rows=dedupe(((await jsonp({action:"all"})).rows)||[]);
+    const PREDS={},RESULTS={};
+    rows.forEach(r=>{
+      if(r.type==="result")Object.assign(RESULTS,r.data||{});
+      else{PREDS[r.name]=Object.assign(PREDS[r.name]||{},r.data||{});}
+    });
+    if(RESULTS["104"]){ buildReveal(PREDS,RESULTS); return true; }
+    $("#lockNote").textContent="Waiting on the Final result. Re-checking every 20 seconds.";
+  }catch(e){
+    $("#lockNote").textContent="Couldn't reach the sheet. Trying again shortly.";
+  }finally{ polling=false; }
+  return false;
+}
+
+/* ================= FIREWORKS ================= */
+const REDUCED=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let fwRunning=false;
+function startFireworks(){
+  if(fwRunning||REDUCED)return;
+  fwRunning=true;
+  const cv=$("#fw"),ctx=cv.getContext("2d");
+  let W,H,DPR;
+  function size(){
+    DPR=Math.min(window.devicePixelRatio||1,2);
+    W=cv.clientWidth;H=cv.clientHeight;
+    cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);
+  }
+  size();addEventListener("resize",size);
+  cv.classList.add("on");
+
+  const COLOURS=["#f4b942","#ff4d3d","#f4f1e8","#5b8def","#36c275","#a06bff"];
+  const rockets=[],sparks=[];
+  const rnd=(a,b)=>a+Math.random()*(b-a);
+
+  function launch(){
+    const x=rnd(W*.12,W*.88);
+    rockets.push({
+      x,y:H+8,
+      vx:rnd(-.5,.5),vy:-rnd(7.4,10.2),
+      col:COLOURS[(Math.random()*COLOURS.length)|0],
+      burst:rnd(H*.14,H*.46),
+      big:Math.random()<.22
+    });
+  }
+  function explode(r){
+    const n=r.big?110:64, base=rnd(0,Math.PI*2), spd=r.big?rnd(3.3,5.2):rnd(2.3,3.9);
+    for(let i=0;i<n;i++){
+      const a=base+(i/n)*Math.PI*2+rnd(-.05,.05);
+      const v=spd*rnd(.55,1);
+      sparks.push({
+        x:r.x,y:r.y,
+        vx:Math.cos(a)*v,vy:Math.sin(a)*v,
+        life:1,decay:rnd(.007,.016),
+        col:Math.random()<.15?"#ffffff":r.col,
+        w:r.big?2.2:1.7
+      });
+    }
+  }
+
+  let last=performance.now(),acc=0,next=rnd(280,620),hidden=false;
+  document.addEventListener("visibilitychange",()=>{hidden=document.hidden;last=performance.now();});
+
+  function frame(now){
+    const dt=Math.min(48,now-last);last=now;
+    if(!hidden){
+      acc+=dt;
+      if(acc>next){acc=0;next=rnd(300,760);launch();if(Math.random()<.3)setTimeout(launch,110);}
+
+      ctx.globalCompositeOperation="source-over";
+      ctx.fillStyle="rgba(11,18,32,.20)";
+      ctx.fillRect(0,0,W,H);
+      ctx.globalCompositeOperation="lighter";
+
+      for(let i=rockets.length-1;i>=0;i--){
+        const r=rockets[i];
+        r.x+=r.vx;r.y+=r.vy;r.vy+=.115;
+        ctx.beginPath();ctx.strokeStyle=r.col;ctx.lineWidth=2.1;ctx.lineCap="round";
+        ctx.moveTo(r.x,r.y);ctx.lineTo(r.x-r.vx*2.4,r.y-r.vy*2.4);ctx.stroke();
+        if(r.vy>=-.6||r.y<=r.burst){explode(r);rockets.splice(i,1);}
+      }
+      for(let i=sparks.length-1;i>=0;i--){
+        const s=sparks[i];
+        s.x+=s.vx;s.y+=s.vy;s.vy+=.041;s.vx*=.986;s.vy*=.986;s.life-=s.decay;
+        if(s.life<=0){sparks.splice(i,1);continue;}
+        ctx.globalAlpha=Math.max(0,s.life);
+        ctx.beginPath();ctx.strokeStyle=s.col;ctx.lineWidth=s.w;ctx.lineCap="round";
+        ctx.moveTo(s.x,s.y);ctx.lineTo(s.x-s.vx*2.6,s.y-s.vy*2.6);ctx.stroke();
+      }
+      ctx.globalAlpha=1;
+      if(sparks.length>1400)sparks.splice(0,sparks.length-1400);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  /* opening salvo */
+  for(let i=0;i<5;i++)setTimeout(launch,i*230);
+  requestAnimationFrame(frame);
+}
+
+/* ---------- boot ---------- */
+const PREVIEW=new URLSearchParams(location.search).get("preview")==="1";
+
+if(PREVIEW){
+  /* champion.html?preview=1 renders the whole page off whatever is on the sheet right
+     now, treating the current leader as the winner, so you can check the design before
+     the Final. Does not poll and changes nothing. For your eyes only. */
+  (async()=>{
+    try{
+      const rows=dedupe(((await jsonp({action:"all"})).rows)||[]);
+      const PREDS={},RESULTS={};
+      rows.forEach(r=>{
+        if(r.type==="result")Object.assign(RESULTS,r.data||{});
+        else{PREDS[r.name]=Object.assign(PREDS[r.name]||{},r.data||{});}
+      });
+      buildReveal(PREDS,RESULTS);
+    }catch(e){
+      $("#lockNote").textContent="Preview couldn't reach the sheet.";
+    }
+  })();
+}else{
+  tickCountdown();setInterval(tickCountdown,1000);
+  (async function boot(){
+    if(await check())return;
+    const id=setInterval(async()=>{ if(await check())clearInterval(id); },20000);
+  })();
+}
+</script>
+</body>
+</html>
